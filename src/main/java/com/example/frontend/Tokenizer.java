@@ -26,7 +26,7 @@ public class Tokenizer {
         final String nameRegex = "^[a-zA-Z][a-zA-Z0-9#]*";
         Pattern pattern = Pattern.compile(nameRegex);
         Matcher matcher = pattern.matcher(code);
-        if(!matcher.matches()) {
+        if(!matcher.find()) {
             throw new TokenMatchingException("Could not match name regex: " + nameRegex);
         }
 
