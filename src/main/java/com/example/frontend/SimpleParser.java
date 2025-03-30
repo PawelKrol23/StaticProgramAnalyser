@@ -49,10 +49,25 @@ public class SimpleParser {
     }
 
     private void parseAssign() {
-
+        String variableOnLeft = tokenizer.matchName();
+        tokenizer.matchToken("=");
+        parseExpression();
+        tokenizer.matchToken(";");
     }
 
     private void parseWhile() {
+        tokenizer.matchToken("while");
+        String variableName = tokenizer.matchName();
+        tokenizer.matchToken("{");
+        parseStatementList();
+        tokenizer.matchToken("}");
+    }
 
+    private void parseExpression() {
+        String variableOnLeft = tokenizer.matchName();
+        while (!tokenizer.isNextToken(";")) {
+            tokenizer.matchToken("+");
+            String variableOnRight = tokenizer.matchName();
+        }
     }
 }
