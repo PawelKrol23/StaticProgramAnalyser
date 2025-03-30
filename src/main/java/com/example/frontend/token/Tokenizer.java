@@ -1,6 +1,6 @@
-package com.example.frontend;
+package com.example.frontend.token;
 
-import com.example.frontend.exception.TokenMatchingException;
+import com.example.frontend.token.exception.TokenMatchingException;
 import lombok.AllArgsConstructor;
 
 import java.util.regex.Matcher;
