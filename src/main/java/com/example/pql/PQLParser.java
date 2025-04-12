@@ -9,7 +9,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Scanner;
 
 public class PQLParser {
@@ -116,68 +115,24 @@ public class PQLParser {
         }
     }
 
-    private HashMap<String, String> keywordMap = new HashMap<>() {{
-        put("select", "select");
-        put("such that", "such that");
-        put("modifies", "modifies");
-    }};
-    private String currentKeyword;
-
-    private void processQueryPart(String part) {
-        System.out.print("processQueryPart: ");
-        System.out.println(part);
-        switch (currentKeyword) {
-            case "select":
-                System.out.println("parsing select");
-                break;
-            case "such that":
-                System.out.println("parsing such that");
-                break;
-            case "modifies":
-                System.out.println("parsing modifies");
-                break;
-            default:
-                if (keywordMap.containsKey(part)) {
-                    currentKeyword = part;
-                    System.out.print("keyword change to: ");
-                    System.out.println(currentKeyword);
-                }
-                break;
-        }
-    }
-
     private Query parseQuery() {
-        //String[] workingQuery = query.toLowerCase().split("(?=such that|select| )");
-
         String[] parts = query.split(" such that ");
         String selectPart = parts[0].replace("Select ", "").trim();
         String conditionPart = parts[1].trim();
 
         String[] conditionParts = conditionPart.split("\\(");
-        String conditionType = conditionParts[0].trim();
+        String conditionType = conditionParts[0].trim().toLowerCase();
         String conditionArgs = conditionParts[1].replace(")", "").trim();
 
-        String[] args = conditionArgs.split(", ");
-        String var1 = args[0].trim();  // "s"
+        String[] args = conditionArgs.contains(", ") ? conditionArgs.split(", ") : conditionArgs.split(",");
+        String var1 = args[0].trim();
         String var2 = args[1].replace("\"", "").trim();
 
         Condition condition;
-        if (conditionType.equals("Modifies"))
+        if (conditionType.equals("modifies"))
             condition = new Modifies(var1, var2);
         else
             condition = new Modifies(var1, var2);
         return new Query(selectPart, condition);
-
-//        if (!Objects.equals(workingQuery[0].toLowerCase(), "select")) {
-//            System.out.println("Query must start with select!!!");
-//            return;
-//        }
-//        currentKeyword = "select";
-//
-//        //Select s such that Modifies (s, "z")
-//
-//        for (int i=1; i < workingQuery.length; i++) {
-//            processQueryPart(workingQuery[i]);
-//        }
     }
 }
