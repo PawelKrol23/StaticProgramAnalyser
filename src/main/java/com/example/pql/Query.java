@@ -1,6 +1,6 @@
 package com.example.pql;
 
-import com.example.pkb.models.Condition;
+import com.example.pql.models.Condition;
 
 class Query {
     String selectVar;

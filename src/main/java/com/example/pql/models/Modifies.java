@@ -1,4 +1,4 @@
-package com.example.pkb.models;
+package com.example.pql.models;
 
 import java.util.ArrayList;
 import java.util.List;

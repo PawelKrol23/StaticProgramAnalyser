@@ -1,4 +1,4 @@
-package com.example.pkb.models;
+package com.example.pql.models;
 
 public class Statement implements PqlObject {
     private final String name;
