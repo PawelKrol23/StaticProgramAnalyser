@@ -55,7 +55,8 @@ public class PQLParser {
                 System.out.println(q.condition);
 
                 // Przykładowy wynik
-                System.out.println("2,4");
+                PQLEvaluator evaluator = new PQLEvaluator();
+                evaluator.evaluateQuery(q);
             }
         }
     }

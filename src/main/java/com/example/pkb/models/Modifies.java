@@ -1,12 +1,15 @@
 package com.example.pkb.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Modifies implements Condition {
     @Override
     public String getName() {
         return "Modifies";
     }
 
-    protected String var1;
+    public String var1;
     protected String var2;
 
     public Modifies(String var1, String var2) {
@@ -19,4 +22,10 @@ public class Modifies implements Condition {
         return  "Modifies (" + var1 + ", \"" + var2 + "\")";
     }
 
+
+    public List<Statement> getModifies(Variable var){
+        List<Statement> statements = new ArrayList<>();
+        statements.add(new Statement("TESTPQL"));
+        return statements;
+    }
 }

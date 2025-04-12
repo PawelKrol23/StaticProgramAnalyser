@@ -11,4 +11,6 @@ public class Statement implements PqlObject {
     public Statement(String newName) {
         this.name = newName;
     }
+    @Override
+    public String toString() {return name;}
 }
