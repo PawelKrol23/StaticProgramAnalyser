@@ -1,9 +1,9 @@
 package com.example.pql;
 
-import com.example.pkb.models.Condition;
-import com.example.pkb.models.Modifies;
-import com.example.pkb.models.PqlObject;
-import com.example.pkb.models.Statement;
+import com.example.pql.models.Condition;
+import com.example.pql.models.Modifies;
+import com.example.pql.models.PqlObject;
+import com.example.pql.models.Statement;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
