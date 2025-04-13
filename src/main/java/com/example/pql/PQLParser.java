@@ -19,8 +19,8 @@ public class PQLParser {
     private ArrayList<String> declaredVariablesNames = new ArrayList<>();
 
     private HashMap<String, String> typeClassMap = new HashMap<>() {{
-       put("stmt", "com.example.pkb.models.Statement");
-       put("variable", "com.example.pkb.models.Variable");
+       put("stmt", "com.example.pql.models.Statement");
+       put("variable", "com.example.pql.models.Variable");
     }};
 
     public void parsePQLs() {
