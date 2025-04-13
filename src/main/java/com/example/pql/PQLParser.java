@@ -1,9 +1,6 @@
 package com.example.pql;
 
-import com.example.pql.models.Condition;
-import com.example.pql.models.Modifies;
-import com.example.pql.models.PqlObject;
-import com.example.pql.models.Statement;
+import com.example.pql.models.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -15,12 +12,21 @@ public class PQLParser {
     private String variables;
     private String query;
 
-    private ArrayList<PqlObject> declaredVariables = new ArrayList<>();
+    private HashMap<String, PqlObject> declaredVariables = new HashMap<>();
     private ArrayList<String> declaredVariablesNames = new ArrayList<>();
 
-    private HashMap<String, String> typeClassMap = new HashMap<>() {{
+    private ArrayList<Condition> declaredConditions = new ArrayList<>();
+
+    private final HashMap<String, String> typeClassMap = new HashMap<>() {{
        put("stmt", "com.example.pql.models.Statement");
        put("variable", "com.example.pql.models.Variable");
+       put("codeVariable", "com.example.pql.models.CodeVariable");
+    }};
+
+    private final HashMap<String, String> conditionClassMap = new HashMap<>() {{
+        put("modifies", "com.example.pql.models.Modifies");
+        put("parent", "com.example.pql.models.Parent");
+        put("follows", "com.example.pql.models.Follows");
     }};
 
     public void parsePQLs() {
@@ -37,7 +43,7 @@ public class PQLParser {
 
                 parseVariables();
 
-                for (PqlObject p : declaredVariables) {
+                for (PqlObject p : declaredVariables.values()) {
                     System.out.print("Loaded var named: ");
                     System.out.print(p.getName());
                     System.out.print(" of type: ");
@@ -78,7 +84,7 @@ public class PQLParser {
     private void saveVariables(String type, ArrayList<String> vars) {
         for (String variableName : vars) {
             declaredVariablesNames.add(variableName);
-            declaredVariables.add(createVariable(typeClassMap.get(type), variableName));
+            declaredVariables.put(variableName, createVariable(typeClassMap.get(type), variableName));
         }
     }
 
@@ -116,6 +122,23 @@ public class PQLParser {
         }
     }
 
+    private Condition createCondition(String className, Object... variables) {
+        Class<?> conditionClass;
+        try {
+            System.out.print("className:");
+            System.out.println(className);
+            System.out.println();
+            conditionClass = Class.forName(className);
+            Constructor<?> constructor = conditionClass.getConstructors()[0];
+            Object conditionInstance = constructor.newInstance(variables);
+            return (Condition) conditionInstance;
+        } catch (ClassNotFoundException | InstantiationException |
+                 IllegalAccessException | InvocationTargetException e) {
+            System.out.println("Condition statement not found!");
+            return new ErrorCondition("FATAL ERROR");
+        }
+    }
+
     private Query parseQuery() {
         String[] parts = query.split(" such that ");
         String selectPart = parts[0].replace("Select ", "").trim();
@@ -126,14 +149,39 @@ public class PQLParser {
         String conditionArgs = conditionParts[1].replace(")", "").trim();
 
         String[] args = conditionArgs.contains(", ") ? conditionArgs.split(", ") : conditionArgs.split(",");
-        String var1 = args[0].trim();
-        String var2 = args[1].replace("\"", "").trim();
+        String var1String = args[0].trim();
+        String var2String = args[1].trim();
+        System.out.println("XD");
+        System.out.println(var2String);
+        System.out.println("XD");
 
-        Condition condition;
-        if (conditionType.equals("modifies"))
-            condition = new Modifies(var1, var2);
-        else
-            condition = new Modifies(var1, var2);
+
+        PqlObject var1 = declaredVariables.get(var1String);
+        PqlObject var2;
+        if (declaredVariables.containsKey(var2String)) {
+            var2 = declaredVariables.get(var2String);
+        }
+        //else if (var2String.contains("\"") || var2String.isEmpty()) {
+        else if (!var2String.isEmpty()) {
+            // internal variable in SIMPLE code (e.g.: "Round", "x", "z", "Function1"
+            System.out.println("var2String: ");
+            System.out.println(var2String);
+
+            var2 = createVariable(typeClassMap.get("codeVariable"), var2String);
+        }
+        else {
+            System.out.println("NOT FOUND!!!");
+            var2 = null;
+        }
+
+        Condition condition = createCondition(conditionClassMap.get(conditionType), var1, var2);
+        declaredConditions.add(condition);
+
+
+//        if (conditionType.equals("modifies"))
+//            condition = new Modifies(var1, var2);
+//        else
+//            condition = new Modifies(var1, var2);
         return new Query(selectPart, condition);
     }
 }
