@@ -1,0 +1,22 @@
+@startuml
+title Przykładowy diagram sekwencji
+
+actor Użytkownik
+
+participant "Main" as M
+participant "SimpleParser" as SP
+participant "Tokenizer" as TK
+participant "PKB" as PKB
+participant "PQLParser" as PQL
+
+Użytkownik -> M: Uruchomienie aplikacji
+M -> SP: parseFile("source.simple")
+SP -> TK: Wczytanie i tokenizacja kodu
+TK -> SP: Przekazanie tokenów
+SP -> PKB: Budowa AST
+SP --> M: Parsowanie zakończone
+M -> Użytkownik: Komunikat "Ready"
+M -> PQL: parsePQLs()
+Użytkownik -> PQL: Wprowadzenie zapytania
+PQL --> Użytkownik: Wyświetlenie wyników
+@enduml

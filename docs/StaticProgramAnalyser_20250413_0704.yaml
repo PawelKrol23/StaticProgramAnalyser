@@ -1,0 +1,1103 @@
+files:
+
+  - path: "docs/uml1.puml"
+    content: |-
+      @startuml
+      title Przykładowy diagram sekwencji
+      
+      actor Użytkownik
+      
+      participant "Main" as M
+      participant "SimpleParser" as SP
+      participant "Tokenizer" as TK
+      participant "PKB" as PKB
+      participant "PQLParser" as PQL
+      
+      Użytkownik -> M: Uruchomienie aplikacji
+      M -> SP: parseFile("source.simple")
+      SP -> TK: Wczytanie i tokenizacja kodu
+      TK -> SP: Przekazanie tokenów
+      SP -> PKB: Budowa AST
+      SP --> M: Parsowanie zakończone
+      M -> Użytkownik: Komunikat "Ready"
+      M -> PQL: parsePQLs()
+      Użytkownik -> PQL: Wprowadzenie zapytania
+      PQL --> Użytkownik: Wyświetlenie wyników
+      @enduml
+
+  - path: "pom.xml"
+    content: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <project xmlns="http://maven.apache.org/POM/4.0.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+          <modelVersion>4.0.0</modelVersion>
+      
+          <groupId>com.example</groupId>
+          <artifactId>StaticProgramAnalyser</artifactId>
+          <version>1.0-SNAPSHOT</version>
+      
+          <properties>
+              <maven.compiler.source>21</maven.compiler.source>
+              <maven.compiler.target>21</maven.compiler.target>
+              <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+          </properties>
+      
+          <build>
+              <plugins>
+                  <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-jar-plugin</artifactId>
+                      <version>3.4.2</version>
+                      <configuration>
+                          <archive>
+                              <manifest>
+                                  <mainClass>com.example.Main</mainClass>
+                                  <addClasspath>true</addClasspath>
+                                  <classpathPrefix>lib/</classpathPrefix>
+                              </manifest>
+                          </archive>
+                      </configuration>
+                  </plugin>
+                  <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-compiler-plugin</artifactId>
+                      <version>3.13.0</version>
+                      <configuration>
+                          <annotationProcessorPaths>
+                              <path>
+                                  <groupId>org.projectlombok</groupId>
+                                  <artifactId>lombok</artifactId>
+                                  <version>1.18.36</version>
+                              </path>
+                          </annotationProcessorPaths>
+                      </configuration>
+                  </plugin>
+              </plugins>
+          </build>
+      
+          <dependencies>
+              <dependency>
+                  <groupId>org.projectlombok</groupId>
+                  <artifactId>lombok</artifactId>
+                  <version>1.18.36</version>
+                  <scope>provided</scope>
+              </dependency>
+          </dependencies>
+      </project>
+
+  - path: "README.md"
+    content: |-
+      ### Struktura projektu
+      
+      Tak teoretycznie ma wyglądać struktura projektu,
+      ale w praktyce to można to zmieniać bo i tak w praniu wyjdzie,
+      że coś jest nie tak xd
+      
+      W folderze frontend znajduję się kod związany z parsowaniem kodu simple.
+      W folderze pkb znajduję się kod grafów, które mają być wygenerowane na podstawie kodu simple.
+      Grafy te mają mieć też metody, które będą wykorzystywane do odpowiadania na zapytania pql.
+      W folderze pql znajduję się kod odpowiedzialny za parsowanie zapytań pql.
+      
+      ### Testy
+      
+      W folderze tests polecam wrzucać swoje testy do pipetestera. 
+      Mogą się też przydać komuś innemu xd
+      
+      ### Testowanie pipetesterem
+      
+      Żeby mieć plik .jar, którego można użyć do pipetestera należy skorzystać z `mvn package`
+      Wtedy w folderze target pojawi się jar, do którego ścieżkę należy wrzucić do pipetestera
+      w zakładce "Applications". Po zmianie w kodzie trzeba na nowo generować plik .jar z pomocą
+      `mvn package`.
+
+  - path: "tests/test1/source.simple"
+    content: |-
+      procedure First {
+       x = x+y;
+       z = z+z;
+       while z {
+          y = z + x; } }
+
+  - path: "tests/test1/tests.pql"
+    content: |-
+      stmt s;
+      Select s such that Modifies (s, "z")
+      2
+
+  - path: "src/main/java/com/example/pql/models/Variable.java"
+    content: |-
+      package com.example.pql.models;
+      
+      public class Variable implements PqlObject {
+          private final String name;
+      
+          @Override
+          public String getName() {
+              return name;
+          }
+      
+          public Variable(String newName) {
+              this.name = newName;
+          }
+      }
+  - path: "src/main/java/com/example/pql/models/Condition.java"
+    content: |-
+      package com.example.pql.models;
+      
+      public interface Condition {
+          String getName();
+      }
+
+  - path: "src/main/java/com/example/pql/models/Statement.java"
+    content: |-
+      package com.example.pql.models;
+      
+      public class Statement implements PqlObject {
+          private final String name;
+      
+          @Override
+          public String getName() {
+              return name;
+          }
+      
+          public Statement(String newName) {
+              this.name = newName;
+          }
+          @Override
+          public String toString() {return name;}
+      }
+
+  - path: "src/main/java/com/example/pql/models/Modifies.java"
+    content: |-
+      package com.example.pql.models;
+      
+      import java.util.ArrayList;
+      import java.util.List;
+      
+      public class Modifies implements Condition {
+          @Override
+          public String getName() {
+              return "Modifies";
+          }
+      
+          public String var1;
+          protected String var2;
+      
+          public Modifies(String var1, String var2) {
+              this.var1 = var1;
+              this.var2 = var2;
+          }
+      
+          @Override
+          public String toString() {
+              return  "Modifies (" + var1 + ", \"" + var2 + "\")";
+          }
+      
+      
+          public List<Statement> getModifies(Variable var){
+              List<Statement> statements = new ArrayList<>();
+              statements.add(new Statement("TESTPQL"));
+              return statements;
+          }
+      }
+
+  - path: "src/main/java/com/example/pql/models/PqlObject.java"
+    content: |-
+      package com.example.pql.models;
+      
+      public interface PqlObject {
+          String getName();
+      }
+
+  - path: "src/main/java/com/example/pql/Query.java"
+    content: |-
+      package com.example.pql;
+      
+      import com.example.pql.models.Condition;
+      
+      class Query {
+          String selectVar;
+          Condition condition;
+      
+          public Query(String selectVar, Condition condition) {
+              this.selectVar = selectVar;
+              this.condition = condition;
+          }
+      
+          @Override
+          public String toString() {
+              return "Select " + selectVar + " such that " + condition;
+          }
+      }
+  - path: "src/main/java/com/example/pql/PQLParser.java"
+    content: |-
+      package com.example.pql;
+      
+      import com.example.pkb.models.Condition;
+      import com.example.pkb.models.Modifies;
+      import com.example.pkb.models.PqlObject;
+      import com.example.pkb.models.Statement;
+      
+      import java.lang.reflect.Constructor;
+      import java.lang.reflect.InvocationTargetException;
+      import java.util.ArrayList;
+      import java.util.HashMap;
+      import java.util.Scanner;
+      
+      public class PQLParser {
+          private String variables;
+          private String query;
+      
+          private ArrayList<PqlObject> declaredVariables = new ArrayList<>();
+          private ArrayList<String> declaredVariablesNames = new ArrayList<>();
+      
+          private HashMap<String, String> typeClassMap = new HashMap<>() {{
+             put("stmt", "com.example.pkb.models.Statement");
+             put("variable", "com.example.pkb.models.Variable");
+          }};
+      
+          public void parsePQLs() {
+              try(Scanner scanner = new Scanner(System.in)) {
+                  while (scanner.hasNextLine()) {
+                      variables = scanner.nextLine();
+                      query = scanner.nextLine();
+      
+                      // remove whitespace characters, remove excessive spaces.
+                      variables = variables.replaceAll("[\r\n\t]", "");
+                      variables = variables.replaceAll("\\s+", " ");
+                      query = query.replaceAll("[\r\n\t]", "");
+                      query = query.replaceAll("\\s+", " ");
+      
+                      parseVariables();
+      
+                      for (PqlObject p : declaredVariables) {
+                          System.out.print("Loaded var named: ");
+                          System.out.print(p.getName());
+                          System.out.print(" of type: ");
+                          System.out.println(p.getClass());
+                      }
+      
+                      Query q = parseQuery();
+                      System.out.print("Query: ");
+                      System.out.println(q);
+      
+                      System.out.print("Select Var: ");
+                      System.out.println(q.selectVar);
+      
+                      System.out.print("Condition: ");
+                      System.out.println(q.condition);
+      
+                      // Przykładowy wynik
+                      PQLEvaluator evaluator = new PQLEvaluator();
+                      evaluator.evaluateQuery(q);
+                  }
+              }
+          }
+      
+          private PqlObject createVariable(String className, String name) {
+              Class<?> variableClass;
+              try {
+                  variableClass = Class.forName(className);
+                  Constructor<?> constructor = variableClass.getConstructor(String.class);
+                  Object variableInstance = constructor.newInstance(name);
+                  return (PqlObject) variableInstance;
+              } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
+                       IllegalAccessException | InvocationTargetException e) {
+                  System.out.println("Class statement not found!");
+                  return new Statement("FATAL ERROR");
+              }
+          }
+      
+          private void saveVariables(String type, ArrayList<String> vars) {
+              for (String variableName : vars) {
+                  declaredVariablesNames.add(variableName);
+                  declaredVariables.add(createVariable(typeClassMap.get(type), variableName));
+              }
+          }
+      
+          private void parseVariables() {
+              String type = null;
+              ArrayList<String> varsArray = new ArrayList<>();
+      
+              for (String variableDeclaration : variables.split(";")) {
+                  if (!variableDeclaration.isEmpty()) {
+                      for (String splitted : variableDeclaration.split("[,\\s]")) {
+                          switch (splitted) {
+                              case " ":  // ignore whitespaces
+                                  break;
+                              case "stmt":
+                                  type = "stmt";
+                                  break;
+                              case "variable":
+                                  type = "variable";
+                                  break;
+                              default:
+                                  if (splitted.matches("[a-zA-Z0-9]+")) {
+                                      if (declaredVariablesNames.contains(splitted)) {
+                                          System.out.println("This name is already declared!!!");
+                                          return; //throw new Exception("Object already declared!");
+                                      }
+                                      varsArray.add(splitted);
+                                  }
+                          }
+                      }
+                      // Save variables
+                      saveVariables(type, varsArray);
+                      type = null;
+                      varsArray = new ArrayList<>();
+                  }
+              }
+          }
+      
+          private Query parseQuery() {
+              String[] parts = query.split(" such that ");
+              String selectPart = parts[0].replace("Select ", "").trim();
+              String conditionPart = parts[1].trim();
+      
+              String[] conditionParts = conditionPart.split("\\(");
+              String conditionType = conditionParts[0].trim().toLowerCase();
+              String conditionArgs = conditionParts[1].replace(")", "").trim();
+      
+              String[] args = conditionArgs.contains(", ") ? conditionArgs.split(", ") : conditionArgs.split(",");
+              String var1 = args[0].trim();
+              String var2 = args[1].replace("\"", "").trim();
+      
+              Condition condition;
+              if (conditionType.equals("modifies"))
+                  condition = new Modifies(var1, var2);
+              else
+                  condition = new Modifies(var1, var2);
+              return new Query(selectPart, condition);
+          }
+      }
+
+  - path: "src/main/java/com/example/pql/PQLEvaluator.java"
+    content: |-
+      package com.example.pql;
+      
+      import com.example.pkb.models.Modifies;
+      import com.example.pkb.models.Variable;
+      import com.example.pkb.models.Statement;
+      
+      import java.util.List;
+      
+      public class PQLEvaluator {
+      
+          public void evaluateQuery(Query query) {
+              // Wybierz typ warunku (np. "Modifies")
+              if (query.condition.getName().equals("Modifies")) {
+                  // Jeśli warunek jest typu Modifies, użyj metody getModifies z klasy Modifies
+                  Modifies modifiesCondition = (Modifies) query.condition;
+      
+                  // Zakładając, że mamy dostęp do jakiejś zmiennej 'Variable'
+                  // Możesz tutaj stworzyć odpowiednią instancję zmiennej lub przekazać ją do metody
+                  Variable var = new Variable(modifiesCondition.var1); // Przykład stworzenia zmiennej z pierwszego parametru
+      
+                  // Wywołaj metodę getModifies
+                  List<Statement> result = modifiesCondition.getModifies(var);
+      
+                  // Zwróć lub przetwórz wynik
+                  if (!result.isEmpty()) {
+                      System.out.println("Statements that match the condition: ");
+                      for (Statement statement : result) {
+                          System.out.println(statement);
+                      }
+                  } else {
+                      System.out.println("No matching statements found.");
+                  }
+              } else {
+                  System.out.println("Unsupported condition type.");
+              }
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/ast/EntityType.java"
+    content: |-
+      package com.example.pkb.ast;
+      
+      public enum EntityType {
+          PROGRAM, PROCEDURE, STMTLIST, STMT, ASSIGN, CALL, WHILE, IF, PLUS, MINUS, TIMES, VARIABLE, CONSTANT, PROG_LINE
+      }
+
+  - path: "src/main/java/com/example/pkb/ast/AST.java"
+    content: |-
+      package com.example.pkb.ast;
+      import com.example.pkb.model.attribute.Attribute;
+      import com.example.pkb.model.entity.*;
+      import lombok.AccessLevel;
+      import lombok.NoArgsConstructor;
+      
+      
+      @NoArgsConstructor(access = AccessLevel.PRIVATE)
+      public class AST {
+      
+          private static AST instance;
+      
+          private TNode root;
+      
+      
+          public static AST getInstance() {
+              if (instance == null) {
+                  instance = new AST();
+              }
+              return instance;
+          }
+      
+      
+          ///Setters: Operations to create an AST
+          public TNode createTNode(EntityType et) {
+              return switch (et) {
+                  case PROGRAM -> new Program();
+                  case PROCEDURE -> new Procedure();
+                  case STMTLIST -> new StatementList();
+                  case STMT -> new Statement();
+                  case ASSIGN -> new Assign();
+                  case CALL -> new Call();
+                  case WHILE -> new While();
+                  case IF -> new If();
+                  case PLUS -> new Plus();
+                  case MINUS -> new Minus();
+                  case TIMES -> new Times();
+                  case VARIABLE -> new Variable();
+                  case CONSTANT -> new Constant();
+                  case PROG_LINE -> new ProgLine();
+              };
+          }
+      
+      
+          public void setRoot(TNode node) {
+              root = node;
+          }
+      
+      
+          public void setAttr(TNode n, Attribute attr) {
+              n.setAttr(attr);
+          }
+      
+      
+          public void setLink(LinkType relation, TNode n1, TNode n2) {
+             switch (relation) {
+                 case FIRST_CHILD:
+                     n1.setFirstChild(n2);
+                     break;
+                 case RIGHT_SIBLING:
+                     n1.setRightSibling(n2);
+                     break;
+                 case PARENT:
+                     n1.setParent(n2);
+                     break;
+             }
+          }
+      
+      
+          ///Getters: Operations to traverse an AST and retrieve information from it
+          public TNode getRoot() {
+              return root;
+          }
+      
+      
+          public EntityType getType(TNode node) {
+              return node.getType();
+          }
+      
+      
+          public Attribute getAttr(TNode node) {
+              return node.getAttr();
+          }
+      
+      
+          public TNode getLinkedNode(LinkType link, TNode node) {
+              return switch (link) {
+                  case FIRST_CHILD -> node.getFirstChild();
+                  case RIGHT_SIBLING -> node.getRightSibling();
+                  case PARENT -> node.getParent();
+              };
+          }
+      
+      
+          public boolean isLinked(LinkType link, TNode node1, TNode node2) {
+              return switch (link) {
+                  case FIRST_CHILD -> node1.getFirstChild().equals(node2);
+                  case RIGHT_SIBLING -> node1.getRightSibling().equals(node2);
+                  case PARENT -> node1.getParent().equals(node2);
+              };
+          }
+      
+      }
+
+  - path: "src/main/java/com/example/pkb/ast/LinkType.java"
+    content: |-
+      package com.example.pkb.ast;
+      
+      public enum LinkType {
+          FIRST_CHILD, RIGHT_SIBLING, PARENT
+      }
+
+  - path: "src/main/java/com/example/pkb/model/attribute/VariableName.java"
+    content: |-
+      package com.example.pkb.model.attribute;
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      public class VariableName implements Attribute {
+      
+          private String varName;
+      
+          public VariableName(String varName) {
+              this.varName = varName;
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/attribute/CallProcedureName.java"
+    content: |-
+      package com.example.pkb.model.attribute;
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      public class CallProcedureName implements Attribute {
+      
+          private String procName;
+      
+          public CallProcedureName(String procName) {
+              this.procName = procName;
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/attribute/Attribute.java"
+    content: |-
+      package com.example.pkb.model.attribute;
+      
+      public interface Attribute {
+      }
+
+  - path: "src/main/java/com/example/pkb/model/attribute/ProcedureName.java"
+    content: |-
+      package com.example.pkb.model.attribute;
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      public class ProcedureName implements Attribute {
+      
+          private String procName;
+      
+          public ProcedureName(String procName) {
+              this.procName = procName;
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/attribute/ConstantValue.java"
+    content: |-
+      package com.example.pkb.model.attribute;
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      public class ConstantValue implements Attribute {
+      
+          private int value;
+      
+          public ConstantValue(int value) {
+              this.value = value;
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/attribute/StatementNumber.java"
+    content: |-
+      package com.example.pkb.model.attribute;
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      public class StatementNumber implements Attribute {
+      
+          private int statementNumber;
+      
+          public StatementNumber(int statementNumber) {
+              this.statementNumber = statementNumber;
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/Variable.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      import com.example.pkb.model.attribute.VariableName;
+      
+      
+      public class Variable extends TNode {
+      
+          public Variable(String varName) {
+              this.setAttr(new VariableName(varName));
+              this.setType(EntityType.VARIABLE);
+          }
+      
+      
+          public Variable() {
+              this.setAttr(new VariableName());
+              this.setType(EntityType.VARIABLE);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/Procedure.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      import com.example.pkb.model.attribute.ProcedureName;
+      
+      
+      public class Procedure extends TNode {
+      
+          public Procedure(String procName) {
+              this.setAttr(new ProcedureName(procName));
+              this.setType(EntityType.PROCEDURE);
+          }
+      
+      
+          public Procedure() {
+              this.setAttr(new ProcedureName());
+              this.setType(EntityType.PROCEDURE);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/ProgLine.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      
+      
+      public class ProgLine extends TNode {
+      
+          public ProgLine() {
+              this.setType(EntityType.PROG_LINE);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/Constant.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      import com.example.pkb.model.attribute.ConstantValue;
+      
+      
+      public class Constant extends TNode {
+      
+          public Constant(int value) {
+              this.setAttr(new ConstantValue(value));
+              this.setType(EntityType.CONSTANT);
+          }
+      
+      
+          public Constant() {
+              this.setAttr(new ConstantValue());
+              this.setType(EntityType.CONSTANT);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/Plus.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      
+      
+      public class Plus extends TNode {
+      
+          public Plus() {
+              setType(EntityType.PLUS);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/StatementList.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      
+      
+      public class StatementList extends TNode {
+      
+          public StatementList() {
+              this.setType(EntityType.STMTLIST);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/Times.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      
+      
+      public class Times extends TNode {
+      
+          public Times() {
+              this.setType(EntityType.TIMES);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/If.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      
+      
+      public class If extends TNode {
+      
+          public If() {
+              this.setType(EntityType.IF);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/Statement.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      import com.example.pkb.model.attribute.StatementNumber;
+      
+      
+      public class Statement extends TNode {
+      
+          public Statement(int statementNumber) {
+              this.setAttr(new StatementNumber(statementNumber));
+              this.setType(EntityType.STMT);
+          }
+      
+      
+          public Statement() {
+              this.setAttr(new StatementNumber());
+              this.setType(EntityType.STMT);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/Call.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      import com.example.pkb.model.attribute.CallProcedureName;
+      
+      
+      public class Call extends TNode {
+      
+          public Call(String procName) {
+             setAttr(new CallProcedureName(procName));
+             setType(EntityType.CALL);
+          }
+      
+      
+          public Call() {
+              setAttr(new CallProcedureName());
+              setType(EntityType.CALL);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/Program.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      
+      
+      public class Program extends TNode {
+      
+          public Program() {
+              this.setType(EntityType.PROGRAM);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/Minus.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      
+      
+      public class Minus extends TNode {
+      
+          public Minus() {
+              this.setType(EntityType.MINUS);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/Assign.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      
+      
+      public class Assign extends TNode {
+      
+          public Assign() {
+              setType(EntityType.ASSIGN);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/TNode.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.model.attribute.Attribute;
+      import com.example.pkb.ast.EntityType;
+      import lombok.Getter;
+      import lombok.Setter;
+      
+      
+      @Getter
+      @Setter
+      public abstract class TNode {
+      
+          private EntityType type;
+      
+          private Attribute attr;
+      
+          private TNode firstChild;
+      
+          private TNode rightSibling;
+      
+          private TNode parent;
+      
+      }
+
+  - path: "src/main/java/com/example/pkb/model/entity/While.java"
+    content: |-
+      package com.example.pkb.model.entity;
+      import com.example.pkb.ast.EntityType;
+      
+      
+      public class While extends TNode {
+      
+          public While() {
+              this.setType(EntityType.WHILE);
+          }
+      }
+
+  - path: "src/main/java/com/example/pkb/variable/VarTable.java"
+    content: |-
+      package com.example.pkb.variable;
+      
+      import lombok.AccessLevel;
+      import lombok.NoArgsConstructor;
+      
+      import java.util.ArrayList;
+      import java.util.List;
+      
+      @NoArgsConstructor(access = AccessLevel.PRIVATE)
+      public class VarTable {
+          private static VarTable instance;
+          private final List<String> variables = new ArrayList<>();
+      
+          public static VarTable getInstance() {
+              if (instance == null) {
+                  instance = new VarTable();
+              }
+              return instance;
+          }
+      
+          public int insertVar(String varName) {
+              int index = variables.indexOf(varName);
+              if (index == -1) {
+                  variables.add(varName);
+                  return variables.size() - 1;
+              }
+      
+              return index;
+          }
+      
+          public String getVarName(int index) {
+              return variables.get(index);
+          }
+      
+          public int getVarIndex(String varName) {
+              return variables.indexOf(varName);
+          }
+      
+          public int getSize() {
+              return variables.size();
+          }
+      
+          public boolean isIn(String varName) {
+              return variables.contains(varName);
+          }
+      }
+
+  - path: "src/main/java/com/example/frontend/token/Tokenizer.java"
+    content: |-
+      package com.example.frontend.token;
+      
+      import com.example.frontend.token.exception.TokenMatchingException;
+      import lombok.AllArgsConstructor;
+      
+      import java.util.regex.Matcher;
+      import java.util.regex.Pattern;
+      
+      @AllArgsConstructor
+      public class Tokenizer {
+          private String code;
+      
+          public void matchToken(String expectedToken) {
+              if(!code.startsWith(expectedToken)) {
+                  throwMatchingException(expectedToken);
+              }
+      
+              removeFromCode(expectedToken.length());
+          }
+      
+          /**
+           *
+           * @return nazwa zmiennej
+           */
+          public String matchName() {
+              final String nameRegex = "^[a-zA-Z][a-zA-Z0-9#]*";
+              Pattern pattern = Pattern.compile(nameRegex);
+              Matcher matcher = pattern.matcher(code);
+              if(!matcher.find()) {
+                  throw new TokenMatchingException("Could not match name regex: " + nameRegex);
+              }
+      
+              removeFromCode(matcher.end());
+              return matcher.group();
+          }
+      
+          public boolean isNextToken(String expectedToken) {
+              return code.startsWith(expectedToken);
+          }
+      
+          private void removeFromCode(int numberOfCharacters) {
+              // usuwa znaki z początku kodu i puste znaki jeśli później jakieś są
+              this.code = code.substring(numberOfCharacters).trim();
+          }
+      
+          private void throwMatchingException(String expectedToken) {
+              String got = this.code.substring(0, expectedToken.length());
+              throw new TokenMatchingException("Expected '" + expectedToken +  "' but got '" + got + "'");
+          }
+      }
+
+  - path: "src/main/java/com/example/frontend/token/exception/TokenMatchingException.java"
+    content: |-
+      package com.example.frontend.token.exception;
+      
+      public class TokenMatchingException extends RuntimeException {
+          public TokenMatchingException(String msg) {
+              super(msg);
+          }
+      }
+
+  - path: "src/main/java/com/example/frontend/SimpleParser.java"
+    content: |-
+      package com.example.frontend;
+      
+      import com.example.frontend.token.Tokenizer;
+      
+      import java.io.IOException;
+      import java.nio.file.Files;
+      import java.nio.file.Paths;
+      
+      public class SimpleParser {
+          private Tokenizer tokenizer;
+      
+          public void parseFile(String filePath) {
+              tokenizer = createTokenizer(filePath);
+              parseProgram();
+          }
+      
+          private Tokenizer createTokenizer(String filePath) {
+              try {
+                  String fileContent = new String(Files.readAllBytes(Paths.get(filePath)));
+                  return new Tokenizer(fileContent);
+              } catch (IOException e) {
+                  throw new RuntimeException(e);
+              }
+          }
+      
+          private void parseProgram() {
+              parseProcedure();
+          }
+      
+          private void parseProcedure() {
+              tokenizer.matchToken("procedure");
+              String procedureName = tokenizer.matchName();
+              tokenizer.matchToken("{");
+              parseStatementList();
+              tokenizer.matchToken("}");
+          }
+      
+          private void parseStatementList() {
+              parseStatement();
+              while (!tokenizer.isNextToken("}")) {
+                  parseStatement();
+              }
+          }
+      
+          private void parseStatement() {
+              if (tokenizer.isNextToken("while")) {
+                  parseWhile();
+              } else {
+                  parseAssign();
+              }
+          }
+      
+          private void parseAssign() {
+              String variableOnLeft = tokenizer.matchName();
+              tokenizer.matchToken("=");
+              parseExpression();
+              tokenizer.matchToken(";");
+          }
+      
+          private void parseWhile() {
+              tokenizer.matchToken("while");
+              String variableName = tokenizer.matchName();
+              tokenizer.matchToken("{");
+              parseStatementList();
+              tokenizer.matchToken("}");
+          }
+      
+          private void parseExpression() {
+              String variableOnLeft = tokenizer.matchName();
+              while (!tokenizer.isNextToken(";")) {
+                  tokenizer.matchToken("+");
+                  String variableOnRight = tokenizer.matchName();
+              }
+          }
+      }
+
+  - path: "src/main/java/com/example/Main.java"
+    content: |-
+      package com.example;
+      
+      import com.example.frontend.SimpleParser;
+      import com.example.pql.PQLParser;
+      
+      public class Main {
+          public static void main(String[] args) {
+              // Parsowanie pliku z kodem Simple
+              SimpleParser simpleParser = new SimpleParser();
+              simpleParser.parseFile(args[0]);
+      
+              // Wypisanie ready dla pipetestera
+              // żeby wiedział że plik został już sparsowany
+              System.out.println("Ready");
+      
+              // Wczytywanie z stdin zapytań pql
+              // i wypisywanie odpowiedzi
+              PQLParser pqlParser = new PQLParser();
+              pqlParser.parsePQLs();
+          }
+      }
