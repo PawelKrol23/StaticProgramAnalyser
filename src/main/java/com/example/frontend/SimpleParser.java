@@ -75,6 +75,9 @@ public class SimpleParser {
     }
 
     private void parseExpression() {
+        if (tokenizer.isNextToken("(")) {
+            tokenizer.matchToken("(");
+        }
         if(tokenizer.isNextInteger()) {
             String constValue = tokenizer.matchInteger();
         } else {
