@@ -75,10 +75,25 @@ public class SimpleParser {
     }
 
     private void parseExpression() {
-        String variableOnLeft = tokenizer.matchName();
+        if(tokenizer.isNextInteger()) {
+            String constValue = tokenizer.matchInteger();
+        } else {
+            String variableName = tokenizer.matchName();
+        }
+
         while (!tokenizer.isNextToken(";")) {
-            tokenizer.matchToken("+");
-            String variableOnRight = tokenizer.matchName();
+            String operator = tokenizer.matchOperator();
+            if (tokenizer.isNextToken("(")) {
+                tokenizer.matchToken("(");
+            }
+            if(tokenizer.isNextInteger()) {
+                String constValue = tokenizer.matchInteger();
+            } else {
+                String variableName = tokenizer.matchName();
+            }
+            if (tokenizer.isNextToken(")")) {
+                tokenizer.matchToken(")");
+            }
         }
     }
 
