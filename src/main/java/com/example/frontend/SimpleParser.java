@@ -52,6 +52,8 @@ public class SimpleParser {
             parseWhile();
         } else if(tokenizer.isNextToken("call")) {
             parseCall();
+        } else if(tokenizer.isNextToken("if")) {
+            parseIf();
         } else {
             parseAssign();
         }
@@ -84,5 +86,18 @@ public class SimpleParser {
         tokenizer.matchToken("call");
         String procedureName = tokenizer.matchName();
         tokenizer.matchToken(";");
+    }
+
+    private void parseIf() {
+        tokenizer.matchToken("if");
+        String variableName = tokenizer.matchName();
+        tokenizer.matchToken("then");
+        tokenizer.matchToken("{");
+        parseStatementList();
+        tokenizer.matchToken("}");
+        tokenizer.matchToken("else");
+        tokenizer.matchToken("{");
+        parseStatementList();
+        tokenizer.matchToken("}");
     }
 }
