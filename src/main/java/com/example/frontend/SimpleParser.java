@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 
 public class SimpleParser {
     private Tokenizer tokenizer;
+    private int lineCount = 0;
 
     public void parseFile(String filePath) {
         tokenizer = createTokenizer(filePath);
@@ -25,6 +26,9 @@ public class SimpleParser {
 
     private void parseProgram() {
         parseProcedure();
+        while (tokenizer.hasNext()) {
+            parseProcedure();
+        }
     }
 
     private void parseProcedure() {
@@ -43,8 +47,11 @@ public class SimpleParser {
     }
 
     private void parseStatement() {
+        lineCount++;
         if (tokenizer.isNextToken("while")) {
             parseWhile();
+        } else if(tokenizer.isNextToken("call")) {
+            parseCall();
         } else {
             parseAssign();
         }
@@ -71,5 +78,11 @@ public class SimpleParser {
             tokenizer.matchToken("+");
             String variableOnRight = tokenizer.matchName();
         }
+    }
+
+    private void parseCall() {
+        tokenizer.matchToken("call");
+        String procedureName = tokenizer.matchName();
+        tokenizer.matchToken(";");
     }
 }

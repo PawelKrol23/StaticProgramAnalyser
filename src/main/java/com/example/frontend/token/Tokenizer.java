@@ -34,6 +34,10 @@ public class Tokenizer {
         return matcher.group();
     }
 
+    public boolean hasNext() {
+        return !code.isBlank();
+    }
+
     public boolean isNextToken(String expectedToken) {
         return code.startsWith(expectedToken);
     }
