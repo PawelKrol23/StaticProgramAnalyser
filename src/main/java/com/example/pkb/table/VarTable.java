@@ -1,4 +1,4 @@
-package com.example.pkb.variable;
+package com.example.pkb.table;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

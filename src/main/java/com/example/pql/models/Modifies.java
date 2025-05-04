@@ -1,7 +1,7 @@
 package com.example.pql.models;
 
 
-import java.util.ArrayList;
+import com.example.pkb.table.ModifiesTable;
 import java.util.List;
 
 public class Modifies implements Condition {
@@ -26,8 +26,10 @@ public class Modifies implements Condition {
 
     @Override
     public List<Statement> getCondition(Variable var){
-        List<Statement> statements = new ArrayList<>();
-        statements.add(new Statement("TESTPQL - Condition"));
-        return statements;
+        return ModifiesTable.getInstance()
+                .getLinesModifyingVariable(var.getName())
+                .stream()
+                .map(lineNumber -> new Statement(lineNumber.toString()))
+                .toList();
     }
 }

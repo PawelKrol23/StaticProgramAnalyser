@@ -9,6 +9,7 @@ public class Variable implements PqlObject {
     }
 
     public Variable(String newName) {
-        this.name = newName;
+        // Usuwa wszystkie cudzysłowia ze Stringa
+        this.name = newName.replaceAll("\"", "");
     }
 }

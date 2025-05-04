@@ -1,6 +1,7 @@
 package com.example.frontend;
 
 import com.example.frontend.token.Tokenizer;
+import com.example.pkb.table.ModifiesTable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -61,6 +62,7 @@ public class SimpleParser {
 
     private void parseAssign() {
         String variableOnLeft = tokenizer.matchName();
+        ModifiesTable.getInstance().addModifies(lineCount, variableOnLeft);
         tokenizer.matchToken("=");
         parseExpression();
         tokenizer.matchToken(";");
