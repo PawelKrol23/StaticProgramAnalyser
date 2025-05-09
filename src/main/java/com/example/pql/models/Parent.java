@@ -12,8 +12,8 @@ public class Parent implements Condition {
         return this.getClass().getName();
     }
 
-    public String var1;
-    protected String var2;
+    public PqlObject var1;
+    protected PqlObject var2;
 
     @Override
     public String toString() {

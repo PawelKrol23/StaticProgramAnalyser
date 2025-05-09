@@ -4,9 +4,7 @@ import com.example.pql.models.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class PQLParser {
     private String variables;
@@ -14,19 +12,22 @@ public class PQLParser {
 
     private HashMap<String, PqlObject> declaredVariables = new HashMap<>();
     private ArrayList<String> declaredVariablesNames = new ArrayList<>();
-
     private ArrayList<Condition> declaredConditions = new ArrayList<>();
 
     private final HashMap<String, String> typeClassMap = new HashMap<>() {{
-       put("stmt", "com.example.pql.models.Statement");
-       put("variable", "com.example.pql.models.Variable");
-       put("codeVariable", "com.example.pql.models.CodeVariable");
+        put("assign", "com.example.pql.models.Assign");
+        put("if", "com.example.pql.models.If");
+        put("stmt", "com.example.pql.models.Statement");
+        put("while", "com.example.pql.models.While");
+        put("variable", "com.example.pql.models.Variable");
+        put("codeVariable", "com.example.pql.models.CodeVariable");
     }};
 
     private final HashMap<String, String> conditionClassMap = new HashMap<>() {{
         put("modifies", "com.example.pql.models.Modifies");
         put("parent", "com.example.pql.models.Parent");
         put("follows", "com.example.pql.models.Follows");
+        put("parent*", "com.example.pql.models.ParentFollow");
     }};
 
     public void parsePQLs() {
@@ -41,7 +42,19 @@ public class PQLParser {
                 query = query.replaceAll("[\r\n\t]", "");
                 query = query.replaceAll("\\s+", " ");
 
-                parseVariables();
+                //try {
+                    parseVariables();
+                //} catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
+//                    System.out.println("Error when parsing variables!");
+//                }
+
+                Query q;
+                //try {
+                    q = parseQuery();
+//                } catch (Exception e) {
+//                    System.out.println("Error when parsing Query!");
+//                    continue;
+//                }
 
                 for (PqlObject p : declaredVariables.values()) {
                     System.out.print("Loaded var named: ");
@@ -50,7 +63,6 @@ public class PQLParser {
                     System.out.println(p.getClass());
                 }
 
-                Query q = parseQuery();
                 System.out.print("Query: ");
                 System.out.println(q);
 
@@ -95,14 +107,25 @@ public class PQLParser {
         for (String variableDeclaration : variables.split(";")) {
             if (!variableDeclaration.isEmpty()) {
                 for (String splitted : variableDeclaration.split("[,\\s]")) {
+                    System.out.println("SPLITTED");
+                    System.out.println(splitted);
                     switch (splitted) {
                         case " ":  // ignore whitespaces
+                            break;
+                        case "if":
+                            type = "if";
+                            break;
+                        case "assign":
+                            type = "assign";
                             break;
                         case "stmt":
                             type = "stmt";
                             break;
                         case "variable":
                             type = "variable";
+                            break;
+                        case "while":
+                            type = "while";
                             break;
                         default:
                             if (splitted.matches("[a-zA-Z0-9]+")) {
@@ -128,6 +151,9 @@ public class PQLParser {
             System.out.print("className:");
             System.out.println(className);
             System.out.println();
+            System.out.println("variables:");
+            System.out.println(Arrays.toString(variables));
+            System.out.println();
             conditionClass = Class.forName(className);
             Constructor<?> constructor = conditionClass.getConstructors()[0];
             Object conditionInstance = constructor.newInstance(variables);
@@ -151,14 +177,15 @@ public class PQLParser {
         String[] args = conditionArgs.contains(", ") ? conditionArgs.split(", ") : conditionArgs.split(",");
         String var1String = args[0].trim();
         String var2String = args[1].trim();
-        System.out.println("XD");
         System.out.println(var2String);
-        System.out.println("XD");
 
 
         PqlObject var1 = declaredVariables.get(var1String);
         PqlObject var2;
-        if (declaredVariables.containsKey(var2String)) {
+        if (var2String.matches("\\d+")) {
+            var2 = createVariable(typeClassMap.get("codeVariable"), var2String);
+        }
+        else if (declaredVariables.containsKey(var2String)) {
             var2 = declaredVariables.get(var2String);
         }
         //else if (var2String.contains("\"") || var2String.isEmpty()) {
