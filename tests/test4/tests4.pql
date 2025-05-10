@@ -15,3 +15,26 @@ Select s such that Uses(s, "a")
 
 Select BOOLEAN such that Parent(1, 2)
 
+Select BOOLEAN such that Follows*(3, 15)
+
+stmt s;
+Select s such that Follows(6,7) and Parent(7,8)
+
+procedure p;
+Select p such that Calls(p,"compute") and Modifies(p,"z")
+
+procedure p;
+Select p such that Calls("Main",p) and Modifies(p,"a")
+
+Select BOOLEAN such that Next*(8, 12) and Affects(8, 12)
+
+Select BOOLEAN such that Uses(11, "x") and Modifies(12, "x")
+
+stmt s;
+Select s such that Uses(s,"z") and Modifies(s,"x")
+
+procedure p;
+Select p such that Calls*(p,"calculate") and Uses(p,"y") and Modifies(p,"x")
+
+procedure p;
+Select p such that Follows*(3,15) and Next(8,9) and Modifies(p,"i")
