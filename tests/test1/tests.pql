@@ -1,3 +1,5 @@
 stmt s;
 Select s such that Modifies (s, "z")
 2
+stmt s;
+Select s such that Uses (s, "z")

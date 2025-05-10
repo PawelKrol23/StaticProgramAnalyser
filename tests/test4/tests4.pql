@@ -1,0 +1,17 @@
+stmt s;
+Select s such that Modifies (s, "z")
+
+stmt s;
+Select s such that Modifies (s, "x")
+
+procedure p1;
+Select p1 such that Calls(p1, "compute")
+
+procedure p1;
+Select p1 such that Calls(p1, "mathHelper")
+
+stmt s;
+Select s such that Uses(s, "a")
+
+Select BOOLEAN such that Parent(1, 2)
+

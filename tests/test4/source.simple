@@ -1,0 +1,43 @@
+procedure Main {
+  z = 30;
+  call compute;
+}
+procedure compute {
+  a = x + y;
+  b = a - 5;
+  c = b * z;
+  i = 0;
+  while i {
+    x = x + 1;
+    y = y - 1;
+    i = i - 1;
+    if x then {
+      x = z + x;
+    } else  {
+      y = z - y;
+    }
+    call calculate;
+  }
+  b = z - a + b;
+}
+procedure calculate {
+  p = x * y + z;
+  q = p - x;
+  r = q + y;
+  x = r * z;
+}
+procedure display {
+  i = 10;
+  while i {
+    call output;
+    i = i - 1;
+  }
+}
+procedure output {
+  a = x + y + z;
+}
+procedure mathHelper {
+  a = x + 5;
+  b = y * 2;
+  c = a + b;
+}
