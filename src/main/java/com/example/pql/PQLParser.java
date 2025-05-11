@@ -57,20 +57,20 @@ public class PQLParser {
 //                }
 
                 for (PqlObject p : declaredVariables.values()) {
-                    System.out.print("Loaded var named: ");
-                    System.out.print(p.getName());
-                    System.out.print(" of type: ");
-                    System.out.println(p.getClass());
+//                    System.out.print("Loaded var named: ");
+//                    System.out.print(p.getName());
+//                    System.out.print(" of type: ");
+//                    System.out.println(p.getClass());
                 }
 
-                System.out.print("Query: ");
-                System.out.println(q);
+//                System.out.print("Query: ");
+//                System.out.println(q);
 
-                System.out.print("Select Var: ");
-                System.out.println(q.selectVar);
+//                System.out.print("Select Var: ");
+//                System.out.println(q.selectVar);
 
-                System.out.print("Condition: ");
-                System.out.println(q.condition);
+//                System.out.print("Condition: ");
+//                System.out.println(q.condition);
 
                 // Przykładowy wynik
                 PQLEvaluator evaluator = new PQLEvaluator();
@@ -88,7 +88,7 @@ public class PQLParser {
             return (PqlObject) variableInstance;
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
                  IllegalAccessException | InvocationTargetException e) {
-            System.out.println("Class statement not found!");
+//            System.out.println("Class statement not found!");
             return new Statement("FATAL ERROR");
         }
     }
@@ -107,8 +107,8 @@ public class PQLParser {
         for (String variableDeclaration : variables.split(";")) {
             if (!variableDeclaration.isEmpty()) {
                 for (String splitted : variableDeclaration.split("[,\\s]")) {
-                    System.out.println("SPLITTED");
-                    System.out.println(splitted);
+//                    System.out.println("SPLITTED");
+//                    System.out.println(splitted);
                     switch (splitted) {
                         case " ":  // ignore whitespaces
                             break;
@@ -130,7 +130,7 @@ public class PQLParser {
                         default:
                             if (splitted.matches("[a-zA-Z0-9]+")) {
                                 if (declaredVariablesNames.contains(splitted)) {
-                                    System.out.println("This name is already declared!!!");
+//                                    System.out.println("This name is already declared!!!");
                                     return; //throw new Exception("Object already declared!");
                                 }
                                 varsArray.add(splitted);
@@ -148,19 +148,19 @@ public class PQLParser {
     private Condition createCondition(String className, Object... variables) {
         Class<?> conditionClass;
         try {
-            System.out.print("className:");
-            System.out.println(className);
-            System.out.println();
-            System.out.println("variables:");
-            System.out.println(Arrays.toString(variables));
-            System.out.println();
+////            System.out.print("className:");
+//            System.out.println(className);
+////            System.out.println();
+////            System.out.println("variables:");
+//            System.out.println(Arrays.toString(variables));
+//            System.out.println();
             conditionClass = Class.forName(className);
             Constructor<?> constructor = conditionClass.getConstructors()[0];
             Object conditionInstance = constructor.newInstance(variables);
             return (Condition) conditionInstance;
         } catch (ClassNotFoundException | InstantiationException |
                  IllegalAccessException | InvocationTargetException e) {
-            System.out.println("Condition statement not found!");
+//            System.out.println("Condition statement not found!");
             return new ErrorCondition("FATAL ERROR");
         }
     }
@@ -177,7 +177,7 @@ public class PQLParser {
         String[] args = conditionArgs.contains(", ") ? conditionArgs.split(", ") : conditionArgs.split(",");
         String var1String = args[0].trim();
         String var2String = args[1].trim();
-        System.out.println(var2String);
+//        System.out.println(var2String);
 
 
         PqlObject var1 = declaredVariables.get(var1String);
@@ -191,13 +191,13 @@ public class PQLParser {
         //else if (var2String.contains("\"") || var2String.isEmpty()) {
         else if (!var2String.isEmpty()) {
             // internal variable in SIMPLE code (e.g.: "Round", "x", "z", "Function1"
-            System.out.println("var2String: ");
-            System.out.println(var2String);
+//            System.out.println("var2String: ");
+//            System.out.println(var2String);
 
             var2 = createVariable(typeClassMap.get("codeVariable"), var2String);
         }
         else {
-            System.out.println("NOT FOUND!!!");
+//            System.out.println("NOT FOUND!!!");
             var2 = null;
         }
 

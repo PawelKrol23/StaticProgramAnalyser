@@ -23,15 +23,16 @@ public class PQLEvaluator {
 
             // Zwróć lub przetwórz wynik
             if (!result.isEmpty()) {
-                System.out.println("Statements that match the condition: ");
-                for (Statement statement : result) {
-                    System.out.println(statement);
-                }
+//                System.out.println("Statements that match the condition: ");
+                System.out.println(String.join(",", result.stream().map(Statement::toString).toList()));
+//                for (Statement statement : result) {
+//                    System.out.println(statement);
+//                }
             } else {
-                System.out.println("No matching statements found.");
+                System.out.println("None");
             }
         } else {
-            System.out.println("Unsupported condition type.");
+//            System.out.println("Unsupported condition type.");
         }
     }
 }
