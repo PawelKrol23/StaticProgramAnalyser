@@ -25,11 +25,30 @@ public class Modifies implements Condition {
     }
 
     @Override
-    public List<Statement> getCondition(Variable var){
-        return ModifiesTable.getInstance()
-                .getAssignsModifyingVariable(var.getName())
-                .stream()
-                .map(lineNumber -> new Statement(lineNumber.toString()))
-                .toList();
+    public List<Statement> getCondition(PqlObject arg1, PqlObject arg2){
+
+        return switch (arg1) {
+            case Assign assign -> ModifiesTable.getInstance()
+                    .getAssignsModifyingVariable(arg2.getName())
+                    .stream()
+                    .map(lineNumber -> new Statement(lineNumber.toString()))
+                    .toList();
+            case Statement statement -> ModifiesTable.getInstance()
+                    .getStatementsModifyingVariable(arg2.getName())
+                    .stream()
+                    .map(lineNumber -> new Statement(lineNumber.toString()))
+                    .toList();
+            case While w -> ModifiesTable.getInstance()
+                    .getWhilesModifyingVariable(arg2.getName())
+                    .stream()
+                    .map(lineNumber -> new Statement(lineNumber.toString()))
+                    .toList();
+            case If i -> ModifiesTable.getInstance()
+                    .getIfsModifyingVariable(arg2.getName())
+                    .stream()
+                    .map(lineNumber -> new Statement(lineNumber.toString()))
+                    .toList();
+            default -> throw new IllegalStateException("Achievement get! How did we get there?");
+        };
     }
 }

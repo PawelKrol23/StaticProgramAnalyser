@@ -24,7 +24,7 @@ public class ErrorCondition implements Condition {
     }
 
     @Override
-    public List<Statement> getCondition(Variable var){
+    public List<Statement> getCondition(PqlObject arg1, PqlObject arg2){
         return new ArrayList<Statement>();
     }
 }

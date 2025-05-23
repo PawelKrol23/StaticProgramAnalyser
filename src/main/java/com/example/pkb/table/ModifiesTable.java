@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModifiesTable {
@@ -61,5 +63,14 @@ public class ModifiesTable {
 
     public Set<Integer> getIfsModifyingVariable(String variableName) {
         return variableModifiedByIf.getOrDefault(variableName, Set.of());
+    }
+
+    public Set<Integer> getStatementsModifyingVariable(String variableName) {
+        Stream<Integer> assignsStream = variableModifiedByAssign.getOrDefault(variableName, Set.of()).stream();
+        Stream<Integer> ifsStream = variableModifiedByIf.getOrDefault(variableName, Set.of()).stream();
+        Stream<Integer> whileStream = variableModifiedByWhile.getOrDefault(variableName, Set.of()).stream();
+
+        return Stream.concat(Stream.concat(assignsStream, ifsStream), whileStream)
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 }

@@ -25,7 +25,7 @@ public class Follows implements Condition {
     }
 
     @Override
-    public List<Statement> getCondition(Variable var){
+    public List<Statement> getCondition(PqlObject arg1, PqlObject arg2){
         List<Statement> statements = new ArrayList<>();
         statements.add(new Statement("TESTPQL - Condition"));
         return statements;

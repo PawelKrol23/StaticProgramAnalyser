@@ -16,10 +16,10 @@ public class PQLEvaluator {
 
             // Zakładając, że mamy dostęp do jakiejś zmiennej 'Variable'
             // Możesz tutaj stworzyć odpowiednią instancję zmiennej lub przekazać ją do metody
-            Variable var = new Variable(modifiesCondition.var2.getName()); // Przykład stworzenia zmiennej z pierwszego parametru
+            Variable var2 = new Variable(modifiesCondition.var2.getName()); // Przykład stworzenia zmiennej z pierwszego parametru
 
             // Wywołaj metodę getModifies
-            List<Statement> result = modifiesCondition.getCondition(var);
+            List<Statement> result = modifiesCondition.getCondition(modifiesCondition.var1, var2);
 
             // Zwróć lub przetwórz wynik
             if (!result.isEmpty()) {

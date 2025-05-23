@@ -67,7 +67,7 @@ public class SimpleParser {
 
     private void parseAssign() {
         String variableOnLeft = tokenizer.matchName();
-        ModifiesTable.getInstance().addModifies(lineCount, variableOnLeft);
+        ModifiesTable.getInstance().addModifies(lineCount, variableOnLeft, wrapperStatementStack);
         tokenizer.matchToken("=");
         parseExpression();
         tokenizer.matchToken(";");

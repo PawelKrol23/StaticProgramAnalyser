@@ -5,5 +5,5 @@ import java.util.List;
 public interface Condition {
     String getName();
 
-    List<Statement> getCondition(Variable var);
+    List<Statement> getCondition(PqlObject arg1, PqlObject arg2);
 }

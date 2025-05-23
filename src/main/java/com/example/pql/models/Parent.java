@@ -21,7 +21,7 @@ public class Parent implements Condition {
     }
 
     @Override
-    public List<Statement> getCondition(Variable var){
+    public List<Statement> getCondition(PqlObject arg1, PqlObject arg2){
         List<Statement> statements = new ArrayList<>();
         statements.add(new Statement("Parent"));
         return statements;
