@@ -1,15 +1,18 @@
 package com.example.frontend;
 
 import com.example.frontend.token.Tokenizer;
+import com.example.pkb.ast.EntityType;
 import com.example.pkb.table.ModifiesTable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Stack;
 
 public class SimpleParser {
     private Tokenizer tokenizer;
     private int lineCount = 0;
+    private final Stack<WrapperStatement> wrapperStatementStack = new Stack<>();
 
     public void parseFile(String filePath) {
         tokenizer = createTokenizer(filePath);
@@ -35,9 +38,11 @@ public class SimpleParser {
     private void parseProcedure() {
         tokenizer.matchToken("procedure");
         String procedureName = tokenizer.matchName();
+        wrapperStatementStack.add(new WrapperStatement(-1, procedureName, EntityType.PROCEDURE));
         tokenizer.matchToken("{");
         parseStatementList();
         tokenizer.matchToken("}");
+        wrapperStatementStack.pop();
     }
 
     private void parseStatementList() {
@@ -69,11 +74,13 @@ public class SimpleParser {
     }
 
     private void parseWhile() {
+        wrapperStatementStack.add(new WrapperStatement(lineCount, null, EntityType.WHILE));
         tokenizer.matchToken("while");
         String variableName = tokenizer.matchName();
         tokenizer.matchToken("{");
         parseStatementList();
         tokenizer.matchToken("}");
+        wrapperStatementStack.pop();
     }
 
     private void parseExpression() {
@@ -109,6 +116,7 @@ public class SimpleParser {
     }
 
     private void parseIf() {
+        wrapperStatementStack.add(new WrapperStatement(lineCount, null, EntityType.IF));
         tokenizer.matchToken("if");
         String variableName = tokenizer.matchName();
         tokenizer.matchToken("then");
@@ -119,5 +127,6 @@ public class SimpleParser {
         tokenizer.matchToken("{");
         parseStatementList();
         tokenizer.matchToken("}");
+        wrapperStatementStack.pop();
     }
 }

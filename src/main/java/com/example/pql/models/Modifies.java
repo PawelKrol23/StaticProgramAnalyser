@@ -27,7 +27,7 @@ public class Modifies implements Condition {
     @Override
     public List<Statement> getCondition(Variable var){
         return ModifiesTable.getInstance()
-                .getLinesModifyingVariable(var.getName())
+                .getAssignsModifyingVariable(var.getName())
                 .stream()
                 .map(lineNumber -> new Statement(lineNumber.toString()))
                 .toList();
