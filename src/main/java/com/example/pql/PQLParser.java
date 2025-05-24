@@ -10,9 +10,9 @@ public class PQLParser {
     private String variables;
     private String query;
 
-    private HashMap<String, PqlObject> declaredVariables = new HashMap<>();
-    private ArrayList<String> declaredVariablesNames = new ArrayList<>();
-    private ArrayList<Condition> declaredConditions = new ArrayList<>();
+    private final HashMap<String, PqlObject> declaredVariables = new HashMap<>();
+    private final ArrayList<String> declaredVariablesNames = new ArrayList<>();
+    private final ArrayList<Condition> declaredConditions = new ArrayList<>();
 
     private final HashMap<String, String> typeClassMap = new HashMap<>() {{
         put("assign", "com.example.pql.models.Assign");
@@ -56,12 +56,12 @@ public class PQLParser {
 //                    continue;
 //                }
 
-                for (PqlObject p : declaredVariables.values()) {
-//                    System.out.print("Loaded var named: ");
-//                    System.out.print(p.getName());
-//                    System.out.print(" of type: ");
-//                    System.out.println(p.getClass());
-                }
+//                for (PqlObject p : declaredVariables.values()) {
+////                    System.out.print("Loaded var named: ");
+////                    System.out.print(p.getName());
+////                    System.out.print(" of type: ");
+////                    System.out.println(p.getClass());
+//                }
 
 //                System.out.print("Query: ");
 //                System.out.println(q);
@@ -75,6 +75,10 @@ public class PQLParser {
                 // Przykładowy wynik
                 PQLEvaluator evaluator = new PQLEvaluator();
                 evaluator.evaluateQuery(q);
+
+                declaredVariables.clear();
+                declaredConditions.clear();
+                declaredVariablesNames.clear();
             }
         }
     }
