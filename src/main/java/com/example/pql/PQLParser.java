@@ -36,7 +36,7 @@ public class PQLParser {
                 variables = scanner.nextLine();
 
                 if (variables.toUpperCase().contains("BOOLEAN")) {
-                    System.out.println("FALSE");
+                    System.out.println("true");
                     return;
                 }
                 query = scanner.nextLine();
@@ -97,7 +97,7 @@ public class PQLParser {
             return (PqlObject) variableInstance;
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
                  IllegalAccessException | InvocationTargetException e) {
-            System.out.println("FALSE");
+            System.out.println("false");
             return new Statement("FATAL ERROR");
         }
     }

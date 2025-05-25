@@ -29,10 +29,10 @@ public class PQLEvaluator {
 //                    System.out.println(statement);
 //                }
             } else {
-                System.out.println("None");
+                System.out.println("none");
             }
         } else {
-            System.out.println("None");
+            System.out.println("none");
         }
     }
 }

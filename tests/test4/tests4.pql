@@ -38,3 +38,6 @@ Select p such that Calls*(p,"calculate") and Uses(p,"y") and Modifies(p,"x")
 
 procedure p;
 Select p such that Follows*(3,15) and Next(8,9) and Modifies(p,"i")
+
+variable s;
+Select s such that Modifies (s, "x")
