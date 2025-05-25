@@ -32,7 +32,7 @@ public class PQLEvaluator {
                 System.out.println("None");
             }
         } else {
-//            System.out.println("Unsupported condition type.");
+            System.out.println("FALSE");
         }
     }
 }
