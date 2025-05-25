@@ -32,7 +32,7 @@ public class PQLEvaluator {
                 System.out.println("None");
             }
         } else {
-            System.out.println("FALSE");
+            System.out.println("None");
         }
     }
 }

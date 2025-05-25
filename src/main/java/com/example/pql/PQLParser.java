@@ -34,6 +34,11 @@ public class PQLParser {
         try(Scanner scanner = new Scanner(System.in)) {
             while (scanner.hasNextLine()) {
                 variables = scanner.nextLine();
+
+                if (variables.toUpperCase().contains("BOOLEAN")) {
+                    System.out.println("FALSE");
+                    return;
+                }
                 query = scanner.nextLine();
 
                 // remove whitespace characters, remove excessive spaces.
@@ -92,7 +97,7 @@ public class PQLParser {
             return (PqlObject) variableInstance;
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
                  IllegalAccessException | InvocationTargetException e) {
-//            System.out.println("Class statement not found!");
+            System.out.println("FALSE");
             return new Statement("FATAL ERROR");
         }
     }
@@ -163,7 +168,7 @@ public class PQLParser {
             Object conditionInstance = constructor.newInstance(variables);
             return (Condition) conditionInstance;
         } catch (ClassNotFoundException | InstantiationException |
-                 IllegalAccessException | InvocationTargetException e) {
+                 IllegalAccessException | InvocationTargetException | NullPointerException e) {
 //            System.out.println("Condition statement not found!");
             return new ErrorCondition("FATAL ERROR");
         }
