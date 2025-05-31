@@ -1,0 +1,86 @@
+Select BOOLEAN such that Next* (n, n)
+true
+
+while w;
+Select w such that Modifies (w,"d")
+10, 18, 23
+
+while w;
+Select w such that Modifies (w,"c")
+10, 18
+
+variable v;
+Select v such that Modifies (28,v)
+t
+
+stmt s;
+Select s such that Parent (s,10)
+8
+
+stmt s;
+Select s such that Parent (s,20)
+18
+
+stmt s;
+Select s such that Parent (s,11)
+10
+
+stmt s;
+Select s such that Parent (s,2)
+none
+
+while w;
+Select w such that Parent* (w,9)
+none
+
+while w;
+Select w such that Parent* (w,11)
+10
+
+while w;
+Select w such that Parent* (w,13)
+none
+
+while w;
+Select w such that Parent* (w,21)
+18
+
+stmt s;
+Select s such that Follows (s,12)
+11
+
+stmt s;
+Select s such that Follows (s,13)
+10
+
+stmt s;
+Select s such that Follows (s,23)
+none
+
+assign a;
+Select a such that Follows (a,13)
+none
+
+stmt s;
+Select s such that Follows* (s,1)
+none
+
+assign a;
+Select a such that Follows* (a,10)
+9
+
+assign a;
+Select a such that Follows* (a,12)
+11
+
+stmt s;
+Select s such that Uses (s,"c")
+8, 10, 16, 17, 18, 19, 21
+
+variable v;
+Select v such that Uses (10,v)
+t, d, c
+
+assign a;
+Select a such that Modifies (a,"b") and Uses (a, "b")
+none

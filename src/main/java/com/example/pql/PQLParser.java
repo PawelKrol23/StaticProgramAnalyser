@@ -37,15 +37,15 @@ public class PQLParser {
 
                 if (variables.toUpperCase().contains("BOOLEAN")) {
                     System.out.println("true");
-                    return;
                 }
-                query = scanner.nextLine();
+                else {
+                    query = scanner.nextLine();
 
-                // remove whitespace characters, remove excessive spaces.
-                variables = variables.replaceAll("[\r\n\t]", "");
-                variables = variables.replaceAll("\\s+", " ");
-                query = query.replaceAll("[\r\n\t]", "");
-                query = query.replaceAll("\\s+", " ");
+                    // remove whitespace characters, remove excessive spaces.
+                    variables = variables.replaceAll("[\r\n\t]", "");
+                    variables = variables.replaceAll("\\s+", " ");
+                    query = query.replaceAll("[\r\n\t]", "");
+                    query = query.replaceAll("\\s+", " ");
 
                 //try {
                     parseVariables();
@@ -80,6 +80,7 @@ public class PQLParser {
                 // Przykładowy wynik
                 PQLEvaluator evaluator = new PQLEvaluator();
                 evaluator.evaluateQuery(q);
+                }
 
                 declaredVariables.clear();
                 declaredConditions.clear();
@@ -116,8 +117,6 @@ public class PQLParser {
         for (String variableDeclaration : variables.split(";")) {
             if (!variableDeclaration.isEmpty()) {
                 for (String splitted : variableDeclaration.split("[,\\s]")) {
-//                    System.out.println("SPLITTED");
-//                    System.out.println(splitted);
                     switch (splitted) {
                         case " ":  // ignore whitespaces
                             break;
