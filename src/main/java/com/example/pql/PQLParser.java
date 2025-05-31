@@ -54,12 +54,12 @@ public class PQLParser {
 //                }
 
                 Query q;
-                //try {
+                try {
                     q = parseQuery();
-//                } catch (Exception e) {
-//                    System.out.println("Error when parsing Query!");
-//                    continue;
-//                }
+                } catch (Exception e) {
+                    System.out.println("none");
+                    continue;
+                }
 
 //                for (PqlObject p : declaredVariables.values()) {
 ////                    System.out.print("Loaded var named: ");
@@ -77,9 +77,12 @@ public class PQLParser {
 //                System.out.print("Condition: ");
 //                System.out.println(q.condition);
 
-                // Przykładowy wynik
-                PQLEvaluator evaluator = new PQLEvaluator();
-                evaluator.evaluateQuery(q);
+                try {
+                    PQLEvaluator evaluator = new PQLEvaluator();
+                    evaluator.evaluateQuery(q);
+                } catch (Exception e) {
+                    System.out.println("none");
+                }
                 }
 
                 declaredVariables.clear();
