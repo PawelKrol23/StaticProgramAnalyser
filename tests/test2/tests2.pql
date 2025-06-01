@@ -1,6 +1,3 @@
-Select BOOLEAN such that Next* (n, n)
-true
-
 while w;
 Select w such that Modifies (w,"d")
 10, 18, 23
@@ -8,6 +5,34 @@ Select w such that Modifies (w,"d")
 while w;
 Select w such that Modifies (w,"c")
 10, 18
+
+variable v;
+Select v such that Modifies (28,v)
+t
+
+variable v;
+Select v such that Modifies (3,v)
+d
+
+variable v;
+Select v such that Modifies (4,v)
+a, d, c
+
+variable v;
+Select v such that Modifies (6,v)
+t
+
+while w; variable v;
+Select w such that Modifies (w, v)
+18, 23, 10
+
+variable v;
+Select v such that Modifies (18,v)
+t, a, d, c
+
+variable v;
+Select v such that Modifies (24,v)
+a, d
 
 variable v;
 Select v such that Modifies (28,v)
@@ -26,6 +51,10 @@ Select s such that Parent (s,11)
 10
 
 stmt s;
+Select s such that Parent (9,s)
+none
+
+stmt s;
 Select s such that Parent (s,2)
 none
 
@@ -40,6 +69,10 @@ Select w such that Parent* (w,11)
 while w;
 Select w such that Parent* (w,13)
 none
+
+stmt s; while w;
+Select w such that Parent* (s,11)
+10, 18, 23
 
 while w;
 Select w such that Parent* (w,21)
@@ -58,9 +91,42 @@ Select s such that Follows (s,23)
 none
 
 assign a;
+Select a such that Follows (a,8)
+7
+
+assign a;
 Select a such that Follows (a,13)
 none
 
+t, a, d, b, k, c
+
+variable v;
+Select v such that Uses (23,v)
+t, a, d, b, k
+
+stmt s;
+Select s such that Uses (s,"d")
+4, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19, 20, 23, 24, 26, 27
+
+prog_line n2;
+Select BOOLEAN such that Next (1,2)
+true
+
+prog_line n2;
+Select BOOLEAN such that Next (6,8)
+false
+
+prog_line n2;
+Select BOOLEAN such that Next (8,9)
+true
+
+prog_line n2;
+Select BOOLEAN such that Next (12,10)
+true
+
+prog_line n2;
+Select BOOLEAN such that Next (10,11)
+true
 stmt s;
 Select s such that Follows* (s,1)
 none
@@ -73,6 +139,14 @@ assign a;
 Select a such that Follows* (a,12)
 11
 
+stmt s; while w;
+Select w such that Follows* (w, s)
+10, 18, 23
+
+stmt s;
+Select s such that Follows* (s,19)
+none
+
 stmt s;
 Select s such that Uses (s,"c")
 8, 10, 16, 17, 18, 19, 21
@@ -81,6 +155,85 @@ variable v;
 Select v such that Uses (10,v)
 t, d, c
 
+variable v;
+Select v such that Uses (18,v)
+
+assign a;
+Select a such that Modifies (a,"a") and Uses (a, "a")
+26
+
+procedure p;
+Select p such that Modifies (p,"c") and Uses (p,"a")
+Rectangle, Triangle
+
+assign a;
+Select a such that Modifies (a,"d") and Uses (a, "d")
+11
+
+assign a;
+Select a such that Modifies (a,"c") and Uses (a, "c")
+16, 21
+
 assign a;
 Select a such that Modifies (a,"b") and Uses (a, "b")
+none
+
+stmt s; while w;
+Select s such that Follows(s, 4) and Parent(w, s)
+none
+
+stmt s; while w;
+Select s such that Follows(w, s) and Parent(w, s)
+none
+
+assign a; stmt s; while w;
+Select a such that Follows(a, s) and Parent(w, a)
+none
+
+stmt s; while w;
+Select s such that Follows(s, w) and Parent(w, 8)
+none
+
+procedure p; stmt s; while w;
+Select p such that Follows(w, s) and Parent(s, 2)
+none
+
+stmt s; while w;
+Select s such that Uses(s, w) and Parent(w, 11)
+none
+
+stmt s; while w;
+Select s such that Uses(s, 4) and Parent(w, s)
+none
+
+stmt s; while w;
+Select s such that Uses(w, s) and Parent(w, s)
+none
+
+procedure p; stmt s; while w;
+Select p such that Uses(w, s) and Parent(s, 5)
+none
+
+assign a; stmt s; while w;
+Select a such that Uses(a, s) and Parent(w, a)
+none
+
+stmt s; while w;
+Select s such that Follows(s, w) and Uses(w, 11)
+none
+
+procedure p; stmt s; while w;
+Select p such that Follows(w, s) and Uses(s, 5)
+none
+
+stmt s; while w;
+Select s such that Follows(w, s) and Uses(w, s)
+none
+
+assign a; stmt s; while w;
+Select a such that Follows(a, s) and Uses(w, a)
+none
+
+stmt s; while w;
+Select s such that Follows(s, 4) and Uses(w, s)
 none
