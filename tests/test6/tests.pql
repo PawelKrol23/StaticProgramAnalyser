@@ -9,3 +9,6 @@ Third
 procedure p;
 Select p such that Calls(p, "Third")
 First
+
+stmt s1, s2;
+Select s1 such that Follows(s1, s2)

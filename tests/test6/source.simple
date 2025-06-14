@@ -16,3 +16,9 @@ procedure Third {
 procedure Fourth {
     x = x + z;
 }
+
+procedure Example {
+    x = 1;
+    y = x + 2;
+    call P;
+}
