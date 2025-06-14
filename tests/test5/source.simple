@@ -44,7 +44,7 @@ procedure Main {
                 call Shear;
                 call Move; }
               else {
-                distance = length + x1;
+                gittance = length + x1;
                 call Random; } }
             call Shift;
             length = height * x2 - x1;

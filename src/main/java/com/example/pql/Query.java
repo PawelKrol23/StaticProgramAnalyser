@@ -2,17 +2,29 @@ package com.example.pql;
 
 import com.example.pql.models.Condition;
 
-class Query {
-    String selectVar;
-    Condition condition;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Query {
+    private final String selectVar;
+    private final List<Condition> conditions;
+
+    public Query(String selectVar, List<Condition> conditions) {
+        this.selectVar = selectVar;
+        this.conditions = conditions;
+    }
 
     public Query(String selectVar, Condition condition) {
         this.selectVar = selectVar;
-        this.condition = condition;
+        this.conditions = new ArrayList<>();
+        this.conditions.add(condition);
     }
 
-    @Override
-    public String toString() {
-        return "Select " + selectVar + " such that " + condition;
+    public String getSelectVar() {
+        return selectVar;
+    }
+
+    public List<Condition> getConditions() {
+        return conditions;
     }
 }
