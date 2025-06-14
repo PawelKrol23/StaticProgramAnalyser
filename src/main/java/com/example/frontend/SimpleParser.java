@@ -2,6 +2,7 @@ package com.example.frontend;
 
 import com.example.frontend.token.Tokenizer;
 import com.example.pkb.ast.EntityType;
+import com.example.pkb.table.CallsTable;
 import com.example.pkb.table.ModifiesTable;
 
 import java.io.IOException;
@@ -110,8 +111,15 @@ public class SimpleParser {
     }
 
     private void parseCall() {
+        lineCount++;
         tokenizer.matchToken("call");
-        String procedureName = tokenizer.matchName();
+        String callee = tokenizer.matchName();
+
+        String caller = wrapperStatementStack.peek().procedureName();
+
+        CallsTable.getInstance().addCalls(caller, callee);
+        CallsTable.getInstance().addCallStatement(lineCount, callee);
+
         tokenizer.matchToken(";");
     }
 

@@ -21,6 +21,7 @@ public class PQLParser {
         put("while", "com.example.pql.models.While");
         put("variable", "com.example.pql.models.Variable");
         put("codeVariable", "com.example.pql.models.CodeVariable");
+        put("procedure", "com.example.pql.models.Procedure");
     }};
 
     private final HashMap<String, String> conditionClassMap = new HashMap<>() {{
@@ -28,6 +29,7 @@ public class PQLParser {
         put("parent", "com.example.pql.models.Parent");
         put("follows", "com.example.pql.models.Follows");
         put("parent*", "com.example.pql.models.ParentFollow");
+        put("calls", "com.example.pql.models.Calls");
     }};
 
     public void parsePQLs() {
@@ -137,6 +139,9 @@ public class PQLParser {
                             break;
                         case "while":
                             type = "while";
+                            break;
+                        case "procedure":
+                            type = "procedure";
                             break;
                         default:
                             if (splitted.matches("[a-zA-Z0-9]+")) {
