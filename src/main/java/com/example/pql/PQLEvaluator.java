@@ -1,5 +1,6 @@
 package com.example.pql;
 
+import com.example.pql.models.Calls;
 import com.example.pql.models.Modifies;
 import com.example.pql.models.Variable;
 import com.example.pql.models.Statement;
@@ -31,6 +32,17 @@ public class PQLEvaluator {
             } else {
                 System.out.println("none");
             }
+        } else if (query.condition.getName().equals("Calls")) {
+            Calls callsCondition = (Calls) query.condition;
+
+            List<Statement> result = callsCondition.getCondition(callsCondition.var1, callsCondition.var2);
+
+            if (!result.isEmpty()) {
+                System.out.println(String.join(",", result.stream().map(Statement::toString).toList()));
+            } else {
+                System.out.println("none");
+            }
+
         } else {
             System.out.println("none");
         }

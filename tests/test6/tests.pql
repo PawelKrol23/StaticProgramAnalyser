@@ -1,0 +1,11 @@
+procedure p;
+Select p such that Calls(p, "Second")
+First
+
+procedure p;
+Select p such that Calls(p, "Fourth")
+Third
+
+procedure p;
+Select p such that Calls(p, "Third")
+First

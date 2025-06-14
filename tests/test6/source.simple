@@ -1,0 +1,18 @@
+procedure First {
+    call Second;
+    call Third;
+    x = x + 1;
+}
+
+procedure Second {
+    y = 2;
+}
+
+procedure Third {
+    z = 3;
+    call Fourth;
+}
+
+procedure Fourth {
+    x = x + z;
+}
