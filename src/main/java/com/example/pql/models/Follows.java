@@ -1,6 +1,8 @@
 package com.example.pql.models;
 
 
+import com.example.pkb.table.FollowsTable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,9 +27,41 @@ public class Follows implements Condition {
     }
 
     @Override
-    public List<Statement> getCondition(PqlObject arg1, PqlObject arg2){
-        List<Statement> statements = new ArrayList<>();
-        statements.add(new Statement("TESTPQL - Condition"));
-        return statements;
+    public List<Statement> getCondition(PqlObject arg1, PqlObject arg2) {
+        FollowsTable followsTable = FollowsTable.getInstance();
+        List<Statement> result = new ArrayList<>();
+
+        boolean isArg1Number = arg1.getName().matches("\\d+");
+        boolean isArg2Number = arg2.getName().matches("\\d+");
+
+        if (isArg1Number && isArg2Number) {
+            int s1 = Integer.parseInt(arg1.getName());
+            int s2 = Integer.parseInt(arg2.getName());
+            if (followsTable.isFollows(s1, s2)) {
+                result.add(new Statement(String.valueOf(s1)));
+            }
+        } else if (isArg1Number) {
+            int s1 = Integer.parseInt(arg1.getName());
+            Integer s2 = followsTable.getFollows(s1);
+            if (s2 != null) {
+                result.add(new Statement(String.valueOf(s1)));
+            }
+        } else if (isArg2Number) {
+            int s2 = Integer.parseInt(arg2.getName());
+            Integer s1 = followsTable.getFollowedBy(s2);
+            if (s1 != null) {
+                result.add(new Statement(String.valueOf(s1)));
+            }
+        } else {
+            // Oba są symboliczne — zwróć wszystkie Follows jako pary (lewy element jako wynik)
+            for (Integer s1 : followsTable.getAllFollowKeys()) {
+                Integer s2 = followsTable.getFollows(s1);
+                if (s2 != null) {
+                    result.add(new Statement(String.valueOf(s1)));
+                }
+            }
+        }
+
+        return result;
     }
 }

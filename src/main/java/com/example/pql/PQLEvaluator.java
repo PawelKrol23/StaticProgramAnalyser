@@ -29,9 +29,10 @@ public class PQLEvaluator {
                 return;
             }
         }
-
+      
         if (finalResult != null && !finalResult.isEmpty()) {
             System.out.println(String.join(",", finalResult.stream().map(Statement::toString).toList()));
+
         } else {
             System.out.println("none");
         }
