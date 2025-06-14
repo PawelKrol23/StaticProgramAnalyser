@@ -1,9 +1,6 @@
 package com.example.pql;
 
-import com.example.pql.models.Calls;
-import com.example.pql.models.Modifies;
-import com.example.pql.models.Variable;
-import com.example.pql.models.Statement;
+import com.example.pql.models.*;
 
 import java.util.List;
 
@@ -36,6 +33,17 @@ public class PQLEvaluator {
             Calls callsCondition = (Calls) query.condition;
 
             List<Statement> result = callsCondition.getCondition(callsCondition.var1, callsCondition.var2);
+
+            if (!result.isEmpty()) {
+                System.out.println(String.join(",", result.stream().map(Statement::toString).toList()));
+            } else {
+                System.out.println("none");
+            }
+
+
+        } else if (query.condition.getName().equals("Follows")) {
+            Follows followsCondition = (Follows) query.condition;
+            List<Statement> result = followsCondition.getCondition(followsCondition.var1, followsCondition.var2);
 
             if (!result.isEmpty()) {
                 System.out.println(String.join(",", result.stream().map(Statement::toString).toList()));

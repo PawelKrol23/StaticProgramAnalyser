@@ -3,6 +3,7 @@ package com.example.frontend;
 import com.example.frontend.token.Tokenizer;
 import com.example.pkb.ast.EntityType;
 import com.example.pkb.table.CallsTable;
+import com.example.pkb.table.FollowsTable;
 import com.example.pkb.table.ModifiesTable;
 
 import java.io.IOException;
@@ -47,9 +48,17 @@ public class SimpleParser {
     }
 
     private void parseStatementList() {
-        parseStatement();
+        int previousStatementLine = -1;
+
         while (!tokenizer.isNextToken("}")) {
+            int currentLine = lineCount + 1;
             parseStatement();
+
+            if (previousStatementLine != -1) {
+                FollowsTable.getInstance().addFollows(previousStatementLine, currentLine);
+            }
+
+            previousStatementLine = currentLine;
         }
     }
 
