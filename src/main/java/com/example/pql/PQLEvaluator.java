@@ -49,6 +49,11 @@ public class PQLEvaluator {
             Variable var2 = new Variable(callsCondition.var2.getName());
             return callsCondition.getCondition(callsCondition.var1, callsCondition.var2);
         }
+        else if (condition.getName().equals("Follows")) {
+            Follows followsCondition = (Follows) condition;
+            Variable var2 = new Variable(followsCondition.var2.getName());
+            return followsCondition.getCondition(followsCondition.var1, followsCondition.var2);
+        }
 
         return null;
     }
