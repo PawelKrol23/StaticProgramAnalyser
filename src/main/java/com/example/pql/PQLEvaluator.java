@@ -1,9 +1,6 @@
 package com.example.pql;
 
-import com.example.pql.models.Condition;
-import com.example.pql.models.Modifies;
-import com.example.pql.models.Variable;
-import com.example.pql.models.Statement;
+import com.example.pql.models.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +43,12 @@ public class PQLEvaluator {
             Variable var2 = new Variable(modifiesCondition.var2.getName());
             return modifiesCondition.getCondition(modifiesCondition.var1, var2);
         }
+        else if (condition.getName().equals("Calls")) {
+            Calls callsCondition = (Calls) condition;
+            Variable var2 = new Variable(callsCondition.var2.getName());
+            return callsCondition.getCondition(callsCondition.var1, callsCondition.var2);
+        }
+
         return null;
     }
 }
