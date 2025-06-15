@@ -28,8 +28,6 @@ public class UsesTable {
                 procToVars.computeIfAbsent(ws.procedureName(), k -> new HashSet<>()).add(variable);
             }
         }
-
-        System.out.println("USES: " + stmt + " uses " + variable);
     }
 
     public boolean isUses(int stmt, String variable) {
