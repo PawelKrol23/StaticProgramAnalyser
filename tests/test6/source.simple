@@ -22,3 +22,4 @@ procedure Example {
     y = x + 2;
     call P;
 }
+
