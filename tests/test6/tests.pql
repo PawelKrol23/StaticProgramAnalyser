@@ -17,3 +17,17 @@ Select s1 such that Follows(s1, s2)
 stmt s;
 Select s such that Uses(s, "x")
 5,10,12
+
+stmt s;
+Select s such that Uses(s, "y")
+1
+
+stmt s;
+Select s such that Uses(s, "c")
+4
+
+stmt s1, s2;
+Select s1 such that Parent(s1, s2)
+
+stmt s;
+Select s such that Parent(2, s)

@@ -32,6 +32,7 @@ public class PQLParser {
         put("parent*", "com.example.pql.models.ParentFollow");
         put("calls", "com.example.pql.models.Calls");
         put("uses", "com.example.pql.models.Uses");
+        put("parent", "com.example.pql.models.Parent");
     }};
 
     public void parsePQLs() {

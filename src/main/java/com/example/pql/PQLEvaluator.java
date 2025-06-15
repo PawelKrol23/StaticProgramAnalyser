@@ -59,6 +59,10 @@ public class PQLEvaluator {
             Variable var2 = new Variable(usesCondition.var2.getName());
             return usesCondition.getCondition(usesCondition.var1, var2);
         }
+        else if (condition.getName().equals("Parent")) {
+            Parent parentCondition = (Parent) condition;
+            return parentCondition.getCondition(parentCondition.var1, parentCondition.var2);
+        }
 
         return null;
     }
