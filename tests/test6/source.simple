@@ -1,24 +1,11 @@
-procedure First {
-    call Second;
-    call Third;
-    x = x + 1;
-}
-
-procedure Second {
-    y = 2;
-}
-
-procedure Third {
-    z = 3;
-    call Fourth;
-}
-
-procedure Fourth {
-    x = x + z;
-}
-
-procedure Example {
-    x = 1;
-    y = x + 2;
-    call P;
+procedure Test {
+  x = 1 + y;
+  while z {
+    a = x + b;
+  }
+  if c then {
+    d = 5 + e;
+  } else {
+    f = 10 + g;
+  }
 }

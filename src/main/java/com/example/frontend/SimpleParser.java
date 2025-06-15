@@ -5,10 +5,13 @@ import com.example.pkb.ast.EntityType;
 import com.example.pkb.table.CallsTable;
 import com.example.pkb.table.FollowsTable;
 import com.example.pkb.table.ModifiesTable;
+import com.example.pkb.table.UsesTable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class SimpleParser {
@@ -76,17 +79,57 @@ public class SimpleParser {
     }
 
     private void parseAssign() {
-        String variableOnLeft = tokenizer.matchName();
-        ModifiesTable.getInstance().addModifies(lineCount, variableOnLeft, wrapperStatementStack);
+        String variableOnLeft = tokenizer.matchName(); // np. x
         tokenizer.matchToken("=");
-        parseExpression();
+
+        List<String> usedVars = parseExpressionForUses();
+
+        ModifiesTable.getInstance().addModifies(lineCount, variableOnLeft, wrapperStatementStack);
+        for (String usedVar : usedVars) {
+            UsesTable.getInstance().addUses(lineCount, usedVar, wrapperStatementStack);
+        }
+
         tokenizer.matchToken(";");
     }
+
+    private List<String> parseExpressionForUses() {
+        List<String> usedVariables = new ArrayList<>();
+
+        if (tokenizer.isNextToken("(")) tokenizer.matchToken("(");
+
+        if (tokenizer.isNextInteger()) {
+            tokenizer.matchInteger();
+        } else {
+            String var = tokenizer.matchName();
+            usedVariables.add(var);
+        }
+
+        while (!tokenizer.isNextToken(";")) {
+            tokenizer.matchOperator();
+
+            if (tokenizer.isNextToken("(")) tokenizer.matchToken("(");
+
+            if (tokenizer.isNextInteger()) {
+                tokenizer.matchInteger();
+            } else {
+                String var = tokenizer.matchName();
+                usedVariables.add(var);
+            }
+
+            if (tokenizer.isNextToken(")")) tokenizer.matchToken(")");
+        }
+
+        return usedVariables;
+    }
+
 
     private void parseWhile() {
         wrapperStatementStack.add(new WrapperStatement(lineCount, null, EntityType.WHILE));
         tokenizer.matchToken("while");
         String variableName = tokenizer.matchName();
+
+        UsesTable.getInstance().addUses(lineCount, variableName, wrapperStatementStack);
+
         tokenizer.matchToken("{");
         parseStatementList();
         tokenizer.matchToken("}");
@@ -136,6 +179,9 @@ public class SimpleParser {
         wrapperStatementStack.add(new WrapperStatement(lineCount, null, EntityType.IF));
         tokenizer.matchToken("if");
         String variableName = tokenizer.matchName();
+
+        UsesTable.getInstance().addUses(lineCount, variableName, wrapperStatementStack);
+
         tokenizer.matchToken("then");
         tokenizer.matchToken("{");
         parseStatementList();
