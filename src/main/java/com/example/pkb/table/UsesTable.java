@@ -15,6 +15,10 @@ public class UsesTable {
 
     private final Map<String, Set<String>> procToVars = new HashMap<>();
 
+    private final Map<String, Set<Integer>> varUsedByIf = new HashMap<>();
+
+    private final Map<String, Set<Integer>> varUsedByWhile = new HashMap<>();
+
     public static UsesTable getInstance() {
         if (instance == null) instance = new UsesTable();
         return instance;
@@ -24,11 +28,26 @@ public class UsesTable {
         stmtToVars.computeIfAbsent(stmt, k -> new HashSet<>()).add(variable);
 
         for (WrapperStatement ws : context) {
-            if (ws.type() == EntityType.PROCEDURE){
-                procToVars.computeIfAbsent(ws.procedureName(), k -> new HashSet<>()).add(variable);
+            switch (ws.type()) {
+                case PROCEDURE -> procToVars
+                        .computeIfAbsent(ws.procedureName(), k -> new HashSet<>())
+                        .add(variable);
+
+                case IF -> varUsedByIf
+                        .computeIfAbsent(variable, k -> new HashSet<>())
+                        .add(ws.codeLine());
+
+                case WHILE -> varUsedByWhile
+                        .computeIfAbsent(variable, k -> new HashSet<>())
+                        .add(ws.codeLine());
+
+                default -> {}
             }
         }
+
     }
+
+    // === Zapytania dla statement ===
 
     public boolean isUses(int stmt, String variable) {
         return stmtToVars.getOrDefault(stmt, Set.of()).contains(variable);
@@ -42,7 +61,7 @@ public class UsesTable {
         return stmtToVars.keySet();
     }
 
-    // === dla procedur ===
+    // === Zapytania dla procedure ===
 
     public boolean isUses(String procedure, String variable) {
         return procToVars.getOrDefault(procedure, Set.of()).contains(variable);
@@ -55,4 +74,16 @@ public class UsesTable {
     public Set<String> getAllProcedures() {
         return procToVars.keySet();
     }
+
+    // === Zapytania dla if/while ===
+
+    public Set<Integer> getIfsUsing(String variable) {
+        return varUsedByIf.getOrDefault(variable, Set.of());
+    }
+
+    public Set<Integer> getWhilesUsing(String variable) {
+        return varUsedByWhile.getOrDefault(variable, Set.of());
+    }
+
+
 }
