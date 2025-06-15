@@ -9,7 +9,6 @@ import java.util.*;
 public class FollowsTable {
     private static FollowsTable instance;
 
-    // Follows: stmt1 -> stmt2
     private final Map<Integer, Integer> followsMap = new HashMap<>();
 
     public static FollowsTable getInstance() {
@@ -19,14 +18,12 @@ public class FollowsTable {
 
     public void addFollows(int stmt1, int stmt2) {
         followsMap.put(stmt1, stmt2);
-        System.out.println("FOLLOWS: " + stmt1 + " -> " + stmt2);
     }
 
     public boolean isFollows(int stmt1, int stmt2) {
         return followsMap.getOrDefault(stmt1, -1) == stmt2;
     }
 
-    // 🆕 potrzebne w PQL getCondition:
     public Integer getFollows(int stmt1) {
         return followsMap.get(stmt1);
     }
