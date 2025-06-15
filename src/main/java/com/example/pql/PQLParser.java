@@ -21,7 +21,7 @@ public class PQLParser {
         put("while", "com.example.pql.models.While");
         put("variable", "com.example.pql.models.Variable");
         put("codeVariable", "com.example.pql.models.CodeVariable");
-        put("procedure", "com.example.pql.models.Procedure"); // dodaj ten wpis
+        put("procedure", "com.example.pql.models.Procedure");
     }};
 
 
@@ -31,7 +31,7 @@ public class PQLParser {
         put("follows", "com.example.pql.models.Follows");
         put("parent*", "com.example.pql.models.ParentFollow");
         put("calls", "com.example.pql.models.Calls");
-
+        put("uses", "com.example.pql.models.Uses");
     }};
 
     public void parsePQLs() {
@@ -124,8 +124,8 @@ public class PQLParser {
                         case "while":
                             type = "while";
                             break;
-                        case "procedure":  // dodaj tę linię
-                            type = "procedure";  // dodaj tę linię
+                        case "procedure":
+                            type = "procedure";
                             break;
 
                         default:
