@@ -53,7 +53,6 @@ public class Follows implements Condition {
                 result.add(new Statement(String.valueOf(s1)));
             }
         } else {
-            // Oba są symboliczne — zwróć wszystkie Follows jako pary (lewy element jako wynik)
             for (Integer s1 : followsTable.getAllFollowKeys()) {
                 Integer s2 = followsTable.getFollows(s1);
                 if (s2 != null) {
