@@ -1,14 +1,257 @@
-procedure p;
-Select p such that Calls(p, "Second")
-First
+stmt s;
+Select s such that Follows(s, 2)
+none
+
+stmt s;
+Select s such that Follows(2, s)
+3
+
+stmt s;
+Select s such that Follows(5, s)
+6
+
+stmt s;
+Select s such that Follows(s, 6)
+5
+
+stmt s;
+Select s such that Follows(7, s)
+8
+
+stmt s;
+Select s such that Follows(s, 9)
+none
+
+stmt s;
+Select s such that Follows*(1, s)
+2, 3, 4, 5, 6, 7, 8
+
+stmt s;
+Select s such that Follows*(s, 6)
+5
+
+stmt s;
+Select s such that Follows*(2, s)
+3, 4, 5, 6, 7, 8
+
+stmt s;
+Select s such that Follows*(s, 10)
+none
+
+stmt s;
+Select s such that Parent(8, s)
+9, 10, 11
+
+stmt s;
+Select s such that Parent(s, 11)
+10
+
+stmt s;
+Select s such that Parent(s, 13)
+12
+
+stmt s;
+Select s such that Parent(18, s)
+19, 20, 21
+
+stmt s;
+Select s such that Parent(s, 20)
+18
+
+assign a;
+Select a such that Modifies(a, "a")
+2, 7, 13, 15, 24, 26
+
+assign a;
+Select a such that Modifies(a, "b")
+5, 7
+
+while w;
+Select w such that Modifies(w, "d")
+10, 18, 23
+
+stmt s;
+Select s such that Modifies(s, "t")
+1, 18, 28
+
+variable v;
+Select v such that Modifies(28, v)
+t
+
+assign a;
+Select a such that Uses(a, "t")
+2, 3, 5, 7, 10, 11, 13, 15, 18, 23, 24, 26, 27
+
+stmt s;
+Select s such that Uses(s, "c")
+8, 10, 16, 17, 18, 19, 21
+
+stmt s;
+Select s such that Uses(s, "d")
+3, 8, 10, 11, 13, 15, 18, 19, 23, 24, 26, 27
+
+variable v;
+Select v such that Uses(10, v)
+t, d, c
+
+variable v;
+Select v such that Uses(18, v)
+a, t, d, c
 
 procedure p;
-Select p such that Calls(p, "Fourth")
-Third
+Select p such that Calls(p, "Triangle")
+Circle, Rectangle
 
 procedure p;
-Select p such that Calls(p, "Third")
-First
+Select p such that Calls("Circle", p)
+Triangle, Hexagon, Rectangle
 
-stmt s1, s2;
-Select s1 such that Follows(s1, s2)
+stmt s;
+Select s such that Calls(s, "Hexagon")
+6, 15
+
+stmt s;
+Select s such that Calls(s, "Rectangle")
+28
+
+procedure p;
+Select p such that Calls(p, "Rectangle")
+Circle
+
+
+stmt s;
+while w;
+Select s such that Follows(s, 4) and Parent(w, s)
+none
+
+stmt s;
+while w;
+Select s such that Follows(w, s) and Parent(w, s)
+10
+
+assign a;
+stmt s;
+while w;
+Select a such that Follows(a, s) and Parent(w, a)
+9
+
+stmt s;
+while w;
+Select s such that Follows(s, w) and Parent(w, 8)
+10
+
+procedure p;
+stmt s;
+while w;
+Select p such that Follows(w, s) and Parent(s, 2)
+none
+
+stmt s;
+while w;
+Select s such that Uses(s, w) and Parent(w, 11)
+none
+
+stmt s;
+Select s such that Follows*(s, 10) and Modifies(s, "d")
+3, 8, 10
+
+assign a;
+Select a such that Follows*(a, 12) and Modifies(a, "a")
+13
+
+prog_line n2;
+Select BOOLEAN such that Next(6, 8)
+false
+
+prog_line n2;
+Select BOOLEAN such that Next(8, 9)
+true
+
+prog_line n2;
+Select BOOLEAN such that Next(10, 11)
+true
+
+stmt s;
+Select s such that Follows*(s, 19)
+none
+
+procedure p;
+Select p such that Calls(p, "Triangle") and Uses(p, "d")
+Circle, Rectangle, Triangle
+
+procedure p;
+Select p such that Modifies(p, "c") and Uses(p, "a")
+Rectangle, Triangle
+
+assign a;
+Select a such that Modifies(a, "a") and Uses(a, "a")
+26
+
+assign a;
+Select a such that Modifies(a, "c") and Uses(a, "c")
+16, 21
+
+assign a;
+Select a such that Modifies(a, "d") and Uses(a, "d")
+11
+
+assign a;
+Select a such that Modifies(a, "b") and Uses(a, "b")
+none
+
+stmt s;
+Select s such that Uses(s, 4) and Parent(10, s)
+11
+
+stmt s;
+Select s such that Uses(10, s) and Modifies(s, "t")
+10
+
+stmt s;
+Select s such that Parent(10, s) and Modifies(s, "c")
+11
+
+stmt s;
+Select s such that Parent(18, s) and Uses(s, "c")
+20, 21
+
+assign a;
+Select a such that Uses(a, "a") and Modifies(a, "a")
+26
+
+assign a;
+Select a such that Uses(a, "g") and Modifies(a, "c")
+none
+
+stmt s;
+while w;
+Select s such that Follows(w, s) and Uses(w, s) and Parent(w, s)
+none
+
+procedure p;
+stmt s;
+while w;
+Select p such that Follows(w, s) and Uses(s, 5) and Parent(s, 5)
+none
+
+stmt s;
+while w;
+Select s such that Uses(w, s) and Parent(w, s) and Modifies(w, "c")
+none
+
+assign a;
+stmt s;
+while w;
+Select a such that Uses(a, s) and Parent(w, a) and Modifies(a, "d")
+11
+
+stmt s;
+while w;
+Select s such that Follows(s, 4) and Uses(w, s) and Parent(w, 11)
+none
+
+procedure p;
+stmt s;
+while w;
+Select p such that Uses(w, s) and Parent(s, 5) and Modifies(w, "a")
+none
