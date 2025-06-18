@@ -12,8 +12,8 @@ public class PQLEvaluator {
 
         for (Condition condition : query.getConditions()) {
             List<Statement> currentResult = evaluateCondition(condition);
-            
-            if (currentResult == null) {
+
+            if (currentResult == null || currentResult.isEmpty()) {
                 System.out.println("none");
                 return;
             }
@@ -21,6 +21,7 @@ public class PQLEvaluator {
             if (finalResult == null) {
                 finalResult = new ArrayList<>(currentResult);
             } else {
+                // Znajdujemy część wspólną wyników
                 finalResult.retainAll(currentResult);
             }
 
@@ -29,10 +30,18 @@ public class PQLEvaluator {
                 return;
             }
         }
-      
-        if (finalResult != null && !finalResult.isEmpty()) {
-            System.out.println(String.join(",", finalResult.stream().map(Statement::toString).toList()));
 
+        if (finalResult != null && !finalResult.isEmpty()) {
+            // Sortujemy wyniki przed wyświetleniem
+            finalResult.sort((s1, s2) ->
+                    Integer.compare(
+                            Integer.parseInt(s1.getName()),
+                            Integer.parseInt(s2.getName())
+                    )
+            );
+            System.out.println(String.join(",", finalResult.stream()
+                    .map(Statement::toString)
+                    .toList()));
         } else {
             System.out.println("none");
         }

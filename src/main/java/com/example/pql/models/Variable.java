@@ -12,4 +12,16 @@ public class Variable implements PqlObject {
         // Usuwa wszystkie cudzysłowia ze Stringa
         this.name = newName.replaceAll("\"", "");
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Variable other = (Variable) o;
+        return name.equals(other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

@@ -1,89 +1,86 @@
 package com.example.pkb.table;
 
 import com.example.frontend.WrapperStatement;
-import com.example.pkb.ast.EntityType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UsesTable {
     private static UsesTable instance;
-
-    private final Map<Integer, Set<String>> stmtToVars = new HashMap<>();
-
-    private final Map<String, Set<String>> procToVars = new HashMap<>();
-
-    private final Map<String, Set<Integer>> varUsedByIf = new HashMap<>();
-
-    private final Map<String, Set<Integer>> varUsedByWhile = new HashMap<>();
+    private final HashMap<String, Set<Integer>> variableUsedByAssign = new HashMap<>();
+    private final HashMap<String, Set<Integer>> variableUsedByWhile = new HashMap<>();
+    private final HashMap<String, Set<Integer>> variableUsedByIf = new HashMap<>();
+    private final HashMap<String, Set<String>> variableUsedByProcedure = new HashMap<>();
 
     public static UsesTable getInstance() {
         if (instance == null) instance = new UsesTable();
         return instance;
     }
 
-    public void addUses(int stmt, String variable, Stack<WrapperStatement> context) {
-        stmtToVars.computeIfAbsent(stmt, k -> new HashSet<>()).add(variable);
+    public void addUses(int lineNumber, String variableName, Stack<WrapperStatement> stack) {
+        Set<Integer> assignUses = variableUsedByAssign.computeIfAbsent(variableName, k -> new TreeSet<>());
+        assignUses.add(lineNumber);
 
-        for (WrapperStatement ws : context) {
-            switch (ws.type()) {
-                case PROCEDURE -> procToVars
-                        .computeIfAbsent(ws.procedureName(), k -> new HashSet<>())
-                        .add(variable);
-
-                case IF -> varUsedByIf
-                        .computeIfAbsent(variable, k -> new HashSet<>())
-                        .add(ws.codeLine());
-
-                case WHILE -> varUsedByWhile
-                        .computeIfAbsent(variable, k -> new HashSet<>())
-                        .add(ws.codeLine());
-
-                default -> {}
+        stack.forEach(wrapperStatement -> {
+            switch (wrapperStatement.type()) {
+                case PROCEDURE -> {
+                    Set<String> uses = variableUsedByProcedure.computeIfAbsent(variableName, k -> new TreeSet<>());
+                    uses.add(wrapperStatement.procedureName());
+                }
+                case IF -> {
+                    Set<Integer> uses = variableUsedByIf.computeIfAbsent(variableName, k -> new TreeSet<>());
+                    uses.add(wrapperStatement.codeLine());
+                }
+                case WHILE -> {
+                    Set<Integer> uses = variableUsedByWhile.computeIfAbsent(variableName, k -> new TreeSet<>());
+                    uses.add(wrapperStatement.codeLine());
+                }
             }
-        }
-
+        });
     }
 
-    // === Zapytania dla statement ===
+    public Set<Integer> getStatementsUsingVariable(String variableName) {
+        Stream<Integer> assignsStream = variableUsedByAssign.getOrDefault(variableName, Set.of()).stream();
+        Stream<Integer> ifsStream = variableUsedByIf.getOrDefault(variableName, Set.of()).stream();
+        Stream<Integer> whileStream = variableUsedByWhile.getOrDefault(variableName, Set.of()).stream();
+
+        return Stream.concat(Stream.concat(assignsStream, ifsStream), whileStream)
+                .collect(Collectors.toCollection(TreeSet::new));
+    }
 
     public boolean isUses(int stmt, String variable) {
-        return stmtToVars.getOrDefault(stmt, Set.of()).contains(variable);
+        return getStatementsUsingVariable(variable).contains(stmt);
+    }
+    public Set<String> getVariablesUsedInStatement(int stmt) {
+        Set<String> result = new HashSet<>();
+        for (Map.Entry<String, Set<Integer>> entry : variableUsedByAssign.entrySet()) {
+            if (entry.getValue().contains(stmt)) {
+                result.add(entry.getKey());
+            }
+        }
+        for (Map.Entry<String, Set<Integer>> entry : variableUsedByWhile.entrySet()) {
+            if (entry.getValue().contains(stmt)) {
+                result.add(entry.getKey());
+            }
+        }
+        for (Map.Entry<String, Set<Integer>> entry : variableUsedByIf.entrySet()) {
+            if (entry.getValue().contains(stmt)) {
+                result.add(entry.getKey());
+            }
+        }
+        return result;
     }
 
-    public Set<String> getUsedVariables(int stmt) {
-        return stmtToVars.getOrDefault(stmt, Set.of());
+    public Set<Integer> getAllStatementsWithUses() {
+        Set<Integer> result = new HashSet<>();
+        variableUsedByAssign.values().forEach(result::addAll);
+        variableUsedByWhile.values().forEach(result::addAll);
+        variableUsedByIf.values().forEach(result::addAll);
+        return result;
     }
-
-    public Set<Integer> getAllStatements() {
-        return stmtToVars.keySet();
-    }
-
-    // === Zapytania dla procedure ===
-
-    public boolean isUses(String procedure, String variable) {
-        return procToVars.getOrDefault(procedure, Set.of()).contains(variable);
-    }
-
-    public Set<String> getUsedVariables(String procedure) {
-        return procToVars.getOrDefault(procedure, Set.of());
-    }
-
-    public Set<String> getAllProcedures() {
-        return procToVars.keySet();
-    }
-
-    // === Zapytania dla if/while ===
-
-    public Set<Integer> getIfsUsing(String variable) {
-        return varUsedByIf.getOrDefault(variable, Set.of());
-    }
-
-    public Set<Integer> getWhilesUsing(String variable) {
-        return varUsedByWhile.getOrDefault(variable, Set.of());
-    }
-
 
 }

@@ -163,7 +163,6 @@ public class SimpleParser {
     }
 
     private void parseCall() {
-        lineCount++;
         tokenizer.matchToken("call");
         String callee = tokenizer.matchName();
 

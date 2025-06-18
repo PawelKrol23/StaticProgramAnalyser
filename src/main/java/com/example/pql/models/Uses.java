@@ -4,6 +4,7 @@ import com.example.pkb.table.UsesTable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Uses implements Condition {
     private final String className;
@@ -42,21 +43,19 @@ public class Uses implements Condition {
             }
         } else if (isArg1Number) {
             int stmt = Integer.parseInt(arg1.getName());
-            for (String used : usesTable.getUsedVariables(stmt)) {
+            Set<String> variables = usesTable.getVariablesUsedInStatement(stmt);
+            if (!variables.isEmpty()) {
                 result.add(new Statement(String.valueOf(stmt)));
-                break;
             }
         } else if (isArg2Name) {
-            for (Integer stmt : usesTable.getAllStatements()) {
-                if (usesTable.isUses(stmt, arg2.getName())) {
-                    result.add(new Statement(String.valueOf(stmt)));
-                }
+            Set<Integer> statements = usesTable.getStatementsUsingVariable(arg2.getName());
+            for (Integer stmt : statements) {
+                result.add(new Statement(String.valueOf(stmt)));
             }
         } else {
-            for (Integer stmt : usesTable.getAllStatements()) {
-                if (!usesTable.getUsedVariables(stmt).isEmpty()) {
-                    result.add(new Statement(String.valueOf(stmt)));
-                }
+            Set<Integer> allStatements = usesTable.getAllStatementsWithUses();
+            for (Integer stmt : allStatements) {
+                result.add(new Statement(String.valueOf(stmt)));
             }
         }
 
