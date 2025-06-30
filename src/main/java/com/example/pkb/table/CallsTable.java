@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CallsTable {
@@ -20,14 +19,18 @@ public class CallsTable {
 
     public void addCalls(String caller, String callee) {
         callsMap.computeIfAbsent(caller, k -> new HashSet<>()).add(callee);
+      // System.out.println("DEBUG: addCalls - caller: '" + caller + "' calls callee: '" + callee + "'");
     }
 
     public boolean doesCall(String caller, String callee) {
-        return callsMap.getOrDefault(caller, Set.of()).contains(callee);
+        boolean result = callsMap.getOrDefault(caller, Collections.emptySet()).contains(callee);
+        //System.out.println("DEBUG: doesCall? caller: '" + caller + "', callee: '" + callee + "' -> " + result);
+        return result;
     }
 
     public void addCallStatement(int lineNumber, String procedureName) {
         callStatements.put(lineNumber, procedureName);
+       // System.out.println("DEBUG: addCallStatement - line: " + lineNumber + ", procedure: '" + procedureName + "'");
     }
 
     public Set<String> getAllCallers() {
@@ -40,5 +43,28 @@ public class CallsTable {
 
     public Set<Integer> getAllCallLines() {
         return callStatements.keySet();
+    }
+    public Set<String> getAllProcedures() {
+        Set<String> allProcs = new HashSet<>();
+        allProcs.addAll(callsMap.keySet());
+        callsMap.values().forEach(allProcs::addAll);
+        return allProcs;
+    }
+
+    public Set<String> getDirectCallers(String callee) {
+        Set<String> callers = new HashSet<>();
+        for (String caller : callsMap.keySet()) {
+            if (callsMap.get(caller).contains(callee)) {
+                callers.add(caller);
+            }
+        }
+        return callers;
+    }
+    // Dodatkowa metoda pomocnicza do debugowania zawartości callsMap
+    public void printCallsMap() {
+        System.out.println("DEBUG: Current callsMap content:");
+        for (Map.Entry<String, Set<String>> entry : callsMap.entrySet()) {
+            System.out.println("  Caller: '" + entry.getKey() + "' calls -> " + entry.getValue());
+        }
     }
 }

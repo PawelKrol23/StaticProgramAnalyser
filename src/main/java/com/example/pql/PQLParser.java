@@ -1,7 +1,6 @@
 package com.example.pql;
 
 import com.example.pql.models.*;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -24,77 +23,97 @@ public class PQLParser {
         put("procedure", "com.example.pql.models.Procedure");
     }};
 
-
     private final HashMap<String, String> conditionClassMap = new HashMap<>() {{
         put("modifies", "com.example.pql.models.Modifies");
         put("parent", "com.example.pql.models.Parent");
         put("follows", "com.example.pql.models.Follows");
         put("parent*", "com.example.pql.models.ParentFollow");
         put("calls", "com.example.pql.models.Calls");
+        put("calls*", "com.example.pql.models.CallsStar");
         put("uses", "com.example.pql.models.Uses");
-        put("parent", "com.example.pql.models.Parent");
+        put("follows*", "com.example.pql.models.FollowsStar");
     }};
 
     public void parsePQLs() {
         try(Scanner scanner = new Scanner(System.in)) {
             while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                
-                // Pomiń puste linie
-                if (line.trim().isEmpty()) {
+                String line = scanner.nextLine().trim();
+
+                if (line.isEmpty()) {
                     continue;
                 }
-                
-                // Sprawdź czy to zapytanie BOOLEAN
-                if (line.trim().startsWith("Select BOOLEAN")) {
-                    System.out.println("false");
+
+                // Handle BOOLEAN queries
+                if (line.startsWith("Select BOOLEAN")) {
+                    variables = "";
+                    // Check if the query continues on the same line
+                    if (line.contains("such that")) {
+                        query = line;
+                    } else {
+                        if (!scanner.hasNextLine()) {
+                            // Puste zapytanie BOOLEAN - zwracamy false
+                            System.out.println("false");
+                            continue;
+                        }
+                        query = line + " " + scanner.nextLine().trim();
+                    }
+
+                    try {
+                        parseVariables();
+                        Query q = parseQuery(true);
+                        PQLEvaluator evaluator = new PQLEvaluator();
+                        evaluator.evaluateQuery(q);
+                    } catch (Exception e) {
+
+                        System.out.println("false");
+                    }
+
+                    resetParserState();
                     continue;
                 }
-                
-                // Dla normalnych zapytań
+
+                // Normal queries
                 variables = line;
                 if (!scanner.hasNextLine()) {
                     break;
                 }
-                query = scanner.nextLine();
-
-                // remove whitespace characters, remove excessive spaces.
-                variables = variables.replaceAll("[\r\n\t]", "");
-                variables = variables.replaceAll("\\s+", " ");
-                query = query.replaceAll("[\r\n\t]", "");
-                query = query.replaceAll("\\s+", " ");
+                query = scanner.nextLine().trim();
 
                 try {
                     parseVariables();
-                    Query q = parseQuery();
+                    Query q = parseQuery(false);
                     PQLEvaluator evaluator = new PQLEvaluator();
                     evaluator.evaluateQuery(q);
                 } catch (Exception e) {
                     System.out.println("none");
                 }
 
-                declaredVariables.clear();
-                declaredConditions.clear();
-                declaredVariablesNames.clear();
+                resetParserState();
             }
         }
     }
 
-    private PqlObject createVariable(String className, String name) {
-        Class<?> variableClass;
-        try {
-            variableClass = Class.forName(className);
-            Constructor<?> constructor = variableClass.getConstructor(String.class);
-            Object variableInstance = constructor.newInstance(name);
-            return (PqlObject) variableInstance;
-        } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
-             IllegalAccessException | InvocationTargetException e) {
-        throw new RuntimeException("Variable creation failed");
+    private void resetParserState() {
+        declaredVariables.clear();
+        declaredConditions.clear();
+        declaredVariablesNames.clear();
     }
-}
+
+    private PqlObject createVariable(String className, String name) {
+        try {
+            Class<?> variableClass = Class.forName(className);
+            Constructor<?> constructor = variableClass.getConstructor(String.class);
+            return (PqlObject) constructor.newInstance(name);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create variable: " + e.getMessage());
+        }
+    }
 
     private void saveVariables(String type, ArrayList<String> vars) {
         for (String variableName : vars) {
+            if (declaredVariablesNames.contains(variableName)) {
+                throw new RuntimeException("Duplicate variable: " + variableName);
+            }
             declaredVariablesNames.add(variableName);
             declaredVariables.put(variableName, createVariable(typeClassMap.get(type), variableName));
         }
@@ -105,103 +124,88 @@ public class PQLParser {
         ArrayList<String> varsArray = new ArrayList<>();
 
         for (String variableDeclaration : variables.split(";")) {
-            if (!variableDeclaration.isEmpty()) {
-                for (String splitted : variableDeclaration.split("[,\\s]")) {
-                    switch (splitted) {
-                        case " ":  // ignore whitespaces
-                            break;
-                        case "if":
-                            type = "if";
-                            break;
-                        case "assign":
-                            type = "assign";
-                            break;
-                        case "stmt":
-                            type = "stmt";
-                            break;
-                        case "variable":
-                            type = "variable";
-                            break;
-                        case "while":
-                            type = "while";
-                            break;
-                        case "procedure":
-                            type = "procedure";
-                            break;
+            if (!variableDeclaration.trim().isEmpty()) {
+                for (String token : variableDeclaration.trim().split("[,\\s]+")) {
+                    if (token.isEmpty()) continue;
 
+                    switch (token) {
+                        case "if": type = "if"; break;
+                        case "assign": type = "assign"; break;
+                        case "stmt": type = "stmt"; break;
+                        case "variable": type = "variable"; break;
+                        case "while": type = "while"; break;
+                        case "procedure": type = "procedure"; break;
                         default:
-                            if (splitted.matches("[a-zA-Z0-9]+")) {
-                                if (declaredVariablesNames.contains(splitted)) {
-//                                    System.out.println("This name is already declared!!!");
-                                    return; //throw new Exception("Object already declared!");
-                                }
-                                varsArray.add(splitted);
+                            if (token.matches("[a-zA-Z0-9]+")) {
+                                varsArray.add(token);
                             }
                     }
                 }
-                // Save variables
-                saveVariables(type, varsArray);
+
+                if (type != null && !varsArray.isEmpty()) {
+                    saveVariables(type, varsArray);
+                }
                 type = null;
                 varsArray = new ArrayList<>();
             }
         }
     }
 
-    private Condition createCondition(String className, Object... variables) {
-        Class<?> conditionClass;
+    private Condition createCondition(String className, PqlObject var1, PqlObject var2) {
         try {
-////            System.out.print("className:");
-//            System.out.println(className);
-////            System.out.println();
-////            System.out.println("variables:");
-//            System.out.println(Arrays.toString(variables));
-//            System.out.println();
-            conditionClass = Class.forName(className);
-            Constructor<?> constructor = conditionClass.getConstructors()[0];
-            Object conditionInstance = constructor.newInstance(variables);
-            return (Condition) conditionInstance;
-        } catch (ClassNotFoundException | InstantiationException |
-                 IllegalAccessException | InvocationTargetException | NullPointerException e) {
-//            System.out.println("Condition statement not found!");
-            return new ErrorCondition("FATAL ERROR");
+            Class<?> conditionClass = Class.forName(className);
+            Constructor<?> constructor = conditionClass.getConstructor(PqlObject.class, PqlObject.class);
+            return (Condition) constructor.newInstance(var1, var2);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create condition: " + e.getMessage());
         }
     }
 
-    private Query parseQuery() {
+    private Query parseQuery(boolean isBooleanQuery) {
         String[] parts = query.split(" such that ");
         String selectPart = parts[0].replace("Select ", "").trim();
-        String conditionsPart = parts[1].trim();
+        String conditionsPart = parts.length > 1 ? parts[1].trim() : "";
 
         List<Condition> conditions = new ArrayList<>();
 
-        // Rozdziel warunki po "and"
-        String[] conditionsArray = conditionsPart.split(" and ");
-        
-        for (String conditionStr : conditionsArray) {
-            String[] conditionParts = conditionStr.split("\\(");
-            String conditionType = conditionParts[0].trim().toLowerCase();
-            String conditionArgs = conditionParts[1].replace(")", "").trim();
+        if (!conditionsPart.isEmpty()) {
+            for (String conditionStr : conditionsPart.split(" and ")) {
+                String[] conditionParts = conditionStr.split("\\(", 2);
+                String conditionType = conditionParts[0].trim().toLowerCase();
+                String conditionArgs = conditionParts[1].replace(")", "").trim();
 
-            String[] args = conditionArgs.contains(", ") ? conditionArgs.split(", ") : conditionArgs.split(",");
-            String var1String = args[0].trim();
-            String var2String = args[1].trim();
+                String[] args = conditionArgs.split("\\s*,\\s*");
+                PqlObject var1 = parseArgument(args[0].trim(), false);
+                PqlObject var2 = parseArgument(args[1].trim(), true);
 
-            PqlObject var1 = declaredVariables.get(var1String);
-            PqlObject var2;
-            if (var2String.matches("\\d+")) {
-                var2 = createVariable(typeClassMap.get("codeVariable"), var2String);
-            } else if (declaredVariables.containsKey(var2String)) {
-                var2 = declaredVariables.get(var2String);
-            } else if (!var2String.isEmpty()) {
-                var2 = createVariable(typeClassMap.get("codeVariable"), var2String);
-            } else {
-                var2 = null;
+                conditions.add(createCondition(conditionClassMap.get(conditionType), var1, var2));
             }
-
-            Condition condition = createCondition(conditionClassMap.get(conditionType), var1, var2);
-            conditions.add(condition);
         }
 
-        return new Query(selectPart, conditions);
+        Query query = new Query(selectPart, conditions, isBooleanQuery);
+        if (!isBooleanQuery && declaredVariables.containsKey(selectPart)) {
+            query.setSelectedObject(declaredVariables.get(selectPart));
+        }
+        return query;
+    }
+
+    private PqlObject parseArgument(String arg, boolean isSecondArg) {
+        if (arg.startsWith("\"") && arg.endsWith("\"")) {
+            arg = arg.substring(1, arg.length() - 1);
+            // If quoted, treat as a concrete procedure/variable name
+            return createVariable(isSecondArg ? typeClassMap.get("procedure") :
+                    typeClassMap.get("procedure"), arg);
+        }
+        else if (arg.matches("\\d+")) {
+            return createVariable(typeClassMap.get("codeVariable"), arg);
+        }
+        else if (declaredVariables.containsKey(arg)) {
+            return declaredVariables.get(arg);
+        }
+        else {
+            // For undeclared variables in conditions
+            return createVariable(isSecondArg ? typeClassMap.get("procedure") :
+                    typeClassMap.get("procedure"), arg);
+        }
     }
 }

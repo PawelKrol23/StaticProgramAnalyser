@@ -69,9 +69,9 @@ public class SimpleParser {
         lineCount++;
         if (tokenizer.isNextToken("while")) {
             parseWhile();
-        } else if(tokenizer.isNextToken("call")) {
+        } else if (tokenizer.isNextToken("call")) {
             parseCall();
-        } else if(tokenizer.isNextToken("if")) {
+        } else if (tokenizer.isNextToken("if")) {
             parseIf();
         } else {
             parseAssign();
@@ -122,7 +122,6 @@ public class SimpleParser {
         return usedVariables;
     }
 
-
     private void parseWhile() {
         wrapperStatementStack.add(new WrapperStatement(lineCount, null, EntityType.WHILE));
         tokenizer.matchToken("while");
@@ -134,44 +133,6 @@ public class SimpleParser {
         parseStatementList();
         tokenizer.matchToken("}");
         wrapperStatementStack.pop();
-    }
-
-    private void parseExpression() {
-        if (tokenizer.isNextToken("(")) {
-            tokenizer.matchToken("(");
-        }
-        if(tokenizer.isNextInteger()) {
-            String constValue = tokenizer.matchInteger();
-        } else {
-            String variableName = tokenizer.matchName();
-        }
-
-        while (!tokenizer.isNextToken(";")) {
-            String operator = tokenizer.matchOperator();
-            if (tokenizer.isNextToken("(")) {
-                tokenizer.matchToken("(");
-            }
-            if(tokenizer.isNextInteger()) {
-                String constValue = tokenizer.matchInteger();
-            } else {
-                String variableName = tokenizer.matchName();
-            }
-            if (tokenizer.isNextToken(")")) {
-                tokenizer.matchToken(")");
-            }
-        }
-    }
-
-    private void parseCall() {
-        tokenizer.matchToken("call");
-        String callee = tokenizer.matchName();
-
-        String caller = wrapperStatementStack.peek().procedureName();
-
-        CallsTable.getInstance().addCalls(caller, callee);
-        CallsTable.getInstance().addCallStatement(lineCount, callee);
-
-        tokenizer.matchToken(";");
     }
 
     private void parseIf() {
@@ -190,5 +151,29 @@ public class SimpleParser {
         parseStatementList();
         tokenizer.matchToken("}");
         wrapperStatementStack.pop();
+    }
+
+    private void parseCall() {
+        tokenizer.matchToken("call");
+        String callee = tokenizer.matchName();
+
+        String caller = getCurrentProcedure();
+        if (caller == null) {
+          //  System.err.println("⚠️  Cannot determine caller procedure for line " + lineCount);
+        } else {
+            CallsTable.getInstance().addCalls(caller, callee);
+            CallsTable.getInstance().addCallStatement(lineCount, callee);
+            //System.out.println("✅ call: " + caller + " → " + callee + " (line " + lineCount + ")");
+        }
+
+        tokenizer.matchToken(";");
+    }
+
+    private String getCurrentProcedure() {
+        for (int i = wrapperStatementStack.size() - 1; i >= 0; i--) {
+            String name = wrapperStatementStack.get(i).procedureName();
+            if (name != null) return name;
+        }
+        return null;
     }
 }

@@ -73,4 +73,19 @@ public class ModifiesTable {
         return Stream.concat(Stream.concat(assignsStream, ifsStream), whileStream)
                 .collect(Collectors.toCollection(TreeSet::new));
     }
+    public boolean isVariableModifiedByStatement(int lineNumber, String variableName) {
+        // Sprawdź w assign
+        if (variableModifiedByAssign.getOrDefault(variableName, Set.of()).contains(lineNumber)) {
+            return true;
+        }
+        // Sprawdź w if
+        if (variableModifiedByIf.getOrDefault(variableName, Set.of()).contains(lineNumber)) {
+            return true;
+        }
+        // Sprawdź w while
+        if (variableModifiedByWhile.getOrDefault(variableName, Set.of()).contains(lineNumber)) {
+            return true;
+        }
+        return false;
+    }
 }

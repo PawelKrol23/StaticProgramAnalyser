@@ -25,17 +25,20 @@ public class Calls implements Condition {
         CallsTable callsTable = CallsTable.getInstance();
         List<Statement> result = new ArrayList<>();
 
-        String proc1 = arg1.getName();
         String proc2 = arg2.getName().replace("\"", "");
 
+        List<String> filteredCallers = new ArrayList<>();
         for (String caller : callsTable.getAllCallers()) {
             if (callsTable.doesCall(caller, proc2)) {
                 result.add(new Statement(caller));
+                filteredCallers.add(caller);
             }
         }
+        //System.out.println("Callers who call '" + proc2 + "': " + filteredCallers);
 
         return result;
     }
+
 
 
 
